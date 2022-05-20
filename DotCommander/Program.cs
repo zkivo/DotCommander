@@ -4,44 +4,46 @@
 //Console.WriteLine(Console.WindowWidth);
 Console.Clear();
 
-string[] files = Directory.GetFiles("G:\\Il mio Drive\\Università");
-string[] dirs = Directory.GetDirectories("G:\\Il mio Drive\\Università");
+string opened_directory = "G:\\Il mio Drive\\Università";
 
-Console.ForegroundColor = (ConsoleColor) 3;
-
-foreach (string file in files)
-{
-    Console.WriteLine(file);
-}
-
-Console.ForegroundColor = (ConsoleColor) 2;
-
-foreach (string a in dirs)
-{
-    Console.WriteLine(a);
-}
 box();
 Console.ReadKey();
 
 void box()
 {
-    for (int i = 0; i < Console.WindowHeight; i++)
+    Console.Clear();
+    Console.CursorTop  = 0;
+    Console.CursorLeft = 0;
+    Console.BackgroundColor = (ConsoleColor) 0; //gray
+    Console.ForegroundColor = (ConsoleColor) ConsoleColor.Blue;
+    string[] files = Directory.GetFiles(opened_directory);
+    string[] dirs = Directory.GetDirectories(opened_directory);
+    string[] split;
+    Console.WriteLine("   " + opened_directory + "   ");
+    Console.BackgroundColor = (ConsoleColor) 0; //gray
+    Console.ForegroundColor = (ConsoleColor) 15;
+    foreach (string file in files)
     {
-        for (int j = 0; j < Console.WindowWidth; j++)
-        {
-            if (i == 0 || i == Console.WindowHeight - 1)
-            {
-                Console.Write("\u2500");
-            } else
-            {
-                if (j == 0 || j == Console.WindowWidth - 1)
-                {
-                    Console.Write("\u2502");
-                } else
-                {
-                    Console.Write(" ");
-                }
-            }
-        }
+        split = file.Split('\\');
+        Console.WriteLine("" + split[split.Length - 1]);
     }
+    //for (int i = 0; i < Console.WindowHeight; i++)
+    //{
+    //    for (int j = 0; j < Console.WindowWidth; j++)
+    //    {
+    //        if (i == 0 || i == Console.WindowHeight - 1)
+    //        {
+    //            Console.Write("\u2500");
+    //        } else
+    //        {
+    //            if (j == 0 || j == Console.WindowWidth - 1)
+    //            {
+    //                Console.Write("\u2502");
+    //            } else
+    //            {
+    //                Console.Write(" ");
+    //            }
+    //        }
+    //    }
+    //}
 }
