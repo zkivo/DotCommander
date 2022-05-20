@@ -2,30 +2,55 @@
 //Console.WriteLine(Console.BackgroundColor);
 //Console.WriteLine(Console.WindowHeight);
 //Console.WriteLine(Console.WindowWidth);
-Console.Clear();
+
 
 string opened_directory = "G:\\Il mio Drive\\Università";
+int    index_list = 0;
+ConsoleKeyInfo   key_info;
+ConsoleModifiers mod;
 
-box();
-Console.ReadKey();
+do {
+    box();
+    key_info = Console.ReadKey(true);
+    mod = key_info.Modifiers; // alt, shift, ctrl modifiers information
+    if (mod > 0) {
+        // If one or more modifiers have been pressed.
 
-void box()
-{
+    } else {
+        // None modifiers have been pressed
+        if (key_info.Key.Equals(ConsoleKey.DownArrow)) {
+            index_list++;
+        } else if (key_info.Key.Equals(ConsoleKey.UpArrow)) {
+            index_list--;
+        } else {
+            Console.WriteLine("dunno");
+        }
+    }
+} while (true);
+
+
+void box() {
     Console.Clear();
     Console.CursorTop  = 0;
     Console.CursorLeft = 0;
-    Console.BackgroundColor = (ConsoleColor) 0; //gray
-    Console.ForegroundColor = (ConsoleColor) ConsoleColor.Blue;
+    Console.BackgroundColor = ConsoleColor.Black; 
+    Console.ForegroundColor = ConsoleColor.Blue;
     string[] files = Directory.GetFiles(opened_directory);
     string[] dirs = Directory.GetDirectories(opened_directory);
     string[] split;
     Console.WriteLine("   " + opened_directory + "   ");
-    Console.BackgroundColor = (ConsoleColor) 0; //gray
-    Console.ForegroundColor = (ConsoleColor) 15;
-    foreach (string file in files)
-    {
+    Console.BackgroundColor = ConsoleColor.Black;
+    Console.ForegroundColor = ConsoleColor.White;
+    //int index = files.Length % index_list;
+    int i = 0;
+    foreach (string file in files) {
+        if (i == index_list) {
+            // this record must be highlighted because the cursor is here
+            Console.ForegroundColor = ConsoleColor.Yellow;
+        } else Console.ForegroundColor = ConsoleColor.White;
         split = file.Split('\\');
         Console.WriteLine("" + split[split.Length - 1]);
+        i++;
     }
     //for (int i = 0; i < Console.WindowHeight; i++)
     //{
