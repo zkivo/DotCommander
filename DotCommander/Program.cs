@@ -9,6 +9,9 @@ int    index_list = 0;
 ConsoleKeyInfo   key_info;
 ConsoleModifiers mod;
 
+Console.BufferHeight = Console.WindowHeight;
+Console.BufferWidth  = Console.WindowWidth;
+
 do {
     box();
     key_info = Console.ReadKey(true);
