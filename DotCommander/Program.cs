@@ -3,21 +3,23 @@
 // Console.WriteLine(Console.WindowHeight);
 // Console.WriteLine(Console.WindowWidth);
 
-using System;
 using System.Diagnostics;
+
+const int ROWS_OF_A_PAGE = 80;
 
 string opened_directory = "G:\\Il mio Drive\\Università";
 int index_list = 0;
 ConsoleKeyInfo   key_info;
 ConsoleModifiers mod;
 
-int height = Console.BufferHeight  = Console.WindowHeight; // one line is used as a buffer 
-int width  = Console.BufferWidth   = Console.WindowWidth;
+//int height = Console.BufferHeight  = Console.WindowHeight; // one line is used as a buffer 
+//int width  = Console.BufferWidth   = Console.WindowWidth;
 
 string[] files = Directory.GetFiles(opened_directory);
 string[] dirs = Directory.GetDirectories(opened_directory);
 string[] split;
 
+int num_elements = files.Length + dirs.Length;
 
 refresh();
 do {
@@ -29,7 +31,7 @@ do {
     } else {
         // None modifiers have been pressed
         if (key_info.Key.Equals(ConsoleKey.DownArrow)) {
-            if (index_list < Console.BufferHeight - 2) {
+            if (index_list < num_elements - 2) {
                 switch_highlight(index_list, index_list + 1);
                 index_list++;
             }
@@ -55,7 +57,7 @@ void switch_highlight(int i_from, int i_to) {
         Console.CursorTop  = i_from;
         Console.Write(files[i_from - 1].Split("\\").Last<string>());
     } catch (Exception e) {
-
+        //nothing
     }
     Console.ForegroundColor = ConsoleColor.Yellow;
     try {
@@ -63,11 +65,9 @@ void switch_highlight(int i_from, int i_to) {
         Console.CursorTop  = i_to;
         Console.Write(files[i_to - 1].Split("\\").Last<string>());
     } catch (Exception e) {
-
+        //nothing
     }
-    Console.SetCursorPosition(0, 0);
-    Console.ResetColor();
-    Console.CursorVisible = false;
+    reset_cursor();
     //Console.MoveBufferArea(0, first, Console.BufferWidth, 1, 0, Console.BufferHeight - 1);
     //Console.MoveBufferArea(0, second, Console.BufferWidth, 1, 0, first);
     //Console.MoveBufferArea(0, Console.BufferHeight - 1, Console.BufferWidth, 1, 0, second);
@@ -85,8 +85,21 @@ void refresh() {
     Console.ForegroundColor = ConsoleColor.White;
     //int index = files.Length % index_list;
     int i = 0;
+    foreach (string dir in dirs) {
+        if (i == num_elements - 1) {
+            return;
+        } else if (i == index_list) {
+            // this record must be highlighted because the cursor is here
+            Console.ForegroundColor = ConsoleColor.Yellow;
+        } else Console.ForegroundColor = ConsoleColor.White;
+        split = dir.Split('\\');
+        Console.CursorLeft = 0;
+        Console.CursorTop = i + 1;
+        Console.Write("" + split[split.Length - 1]);
+        i++;
+    }
     foreach (string file in files) {
-        if (i == Console.BufferHeight - 1) {
+        if (i == num_elements - 1) {
             return;
         } else if (i == index_list) {
             // this record must be highlighted because the cursor is here
@@ -94,8 +107,15 @@ void refresh() {
         } else Console.ForegroundColor = ConsoleColor.White;
         split = file.Split('\\');
         Console.CursorLeft = 0;
-        Console.CursorTop  = i + 1;
+        Console.CursorTop = i + 1;
         Console.Write("" + split[split.Length - 1]);
         i++;
     }
+    reset_cursor();
+}
+
+void reset_cursor() {
+    Console.SetCursorPosition(0, 0);
+    Console.CursorVisible = false;
+    Console.ResetColor();
 }
