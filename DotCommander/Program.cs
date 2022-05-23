@@ -3,14 +3,19 @@
 //Console.WriteLine(Console.WindowHeight);
 //Console.WriteLine(Console.WindowWidth);
 
+using System.Diagnostics;
 
 string opened_directory = "G:\\Il mio Drive\\Università";
-int    index_list = 0;
+int index_list = 0;
 ConsoleKeyInfo   key_info;
 ConsoleModifiers mod;
 
 Console.BufferHeight = Console.WindowHeight;
 Console.BufferWidth  = Console.WindowWidth;
+
+string[] files = Directory.GetFiles(opened_directory);
+string[] dirs = Directory.GetDirectories(opened_directory);
+string[] split;
 
 do {
     box();
@@ -25,6 +30,8 @@ do {
             index_list++;
         } else if (key_info.Key.Equals(ConsoleKey.UpArrow)) {
             index_list--;
+        } else if (key_info.Key.Equals(ConsoleKey.Enter)){
+            Process.Start(new ProcessStartInfo(files[index_list]) { UseShellExecute = true });
         } else {
             Console.WriteLine("dunno");
         }
@@ -38,16 +45,15 @@ void box() {
     Console.CursorLeft = 0;
     Console.BackgroundColor = ConsoleColor.Black; 
     Console.ForegroundColor = ConsoleColor.Blue;
-    string[] files = Directory.GetFiles(opened_directory);
-    string[] dirs = Directory.GetDirectories(opened_directory);
-    string[] split;
     Console.WriteLine("   " + opened_directory + "   ");
     Console.BackgroundColor = ConsoleColor.Black;
     Console.ForegroundColor = ConsoleColor.White;
     //int index = files.Length % index_list;
     int i = 0;
     foreach (string file in files) {
-        if (i == index_list) {
+        if (i == Console.BufferHeight - 2) {
+            return;
+        } else if (i == index_list) {
             // this record must be highlighted because the cursor is here
             Console.ForegroundColor = ConsoleColor.Yellow;
         } else Console.ForegroundColor = ConsoleColor.White;
