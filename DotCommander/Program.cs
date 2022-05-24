@@ -42,7 +42,7 @@ do {
                 index_list--;
             }
         } else if (key_info.Key.Equals(ConsoleKey.Enter)){
-            Process.Start(new ProcessStartInfo(files[index_list]) { UseShellExecute = true });
+            Process.Start(new ProcessStartInfo(list[index_list]) { UseShellExecute = true });
         } else {
             Console.Beep();
         }
