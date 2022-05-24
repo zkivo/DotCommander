@@ -5,12 +5,16 @@
 
 using System.Diagnostics;
 
-const int ROWS_OF_A_PAGE = 80;
+ConsoleKeyInfo key_info;
+ConsoleModifiers mod;
+string[] split;
 
+int rows_of_a_page = Console.WindowHeight;
+
+string last_opened_directory = "";
 string opened_directory = "G:\\Il mio Drive\\Università";
 int index_list = 0;
-ConsoleKeyInfo   key_info;
-ConsoleModifiers mod;
+int prev_index_list = 0;
 
 //int height = Console.BufferHeight  = Console.WindowHeight; // one line is used as a buffer 
 //int width  = Console.BufferWidth   = Console.WindowWidth;
@@ -20,19 +24,21 @@ string[] dirs  = Directory.GetDirectories(opened_directory);
 string[] list  = new string[files.Length + dirs.Length]; 
 dirs.CopyTo(list, 0);
 files.CopyTo(list, dirs.Length);
-string[] split;
 
 refresh();
 do {
     key_info = Console.ReadKey(true);
-    mod = key_info.Modifiers; // alt, shift, ctrl modifiers information
-    if (mod > 0) {
-        // If one or more modifiers have been pressed.
-
+    mod = key_info.Modifiers; // alt, shift, ctrl modifiers information alt=1,shift=2,ctrl=4
+    if (mod.Equals(ConsoleModifiers.Alt)) {
+        // just alt have been pressed
+        if (key_info.Key.Equals(ConsoleKey.LeftArrow)) {
+            // go to previous path
+            change_dir(last_opened_directory);
+        }
     } else {
         // None modifiers have been pressed
         if (key_info.Key.Equals(ConsoleKey.DownArrow)) {
-            if (index_list < list.Length - 2) {
+            if (index_list < list.Length - 1) {
                 switch_highlight(index_list, index_list + 1);
                 index_list++;
             }
@@ -41,13 +47,50 @@ do {
                 switch_highlight(index_list, index_list - 1);
                 index_list--;
             }
-        } else if (key_info.Key.Equals(ConsoleKey.Enter)){
-            Process.Start(new ProcessStartInfo(list[index_list]) { UseShellExecute = true });
+        } else if (key_info.Key.Equals(ConsoleKey.Enter)) {
+            /* if it is a directory change the current dir
+             * otherwise open the file or program */
+            if (File.Exists(list[index_list])) {
+                Process.Start(new ProcessStartInfo(list[index_list]) { UseShellExecute = true });
+            } else if (Directory.Exists(list[index_list])) {
+                change_dir(list[index_list]);
+            } else {
+                Console.Write("dunno 2");
+            }
+        } else if (key_info.Key.Equals(ConsoleKey.PageDown)) {
+            prev_index_list = index_list;
+            if (index_list + rows_of_a_page >= list.Length) index_list = list.Length - 1;
+            else index_list += rows_of_a_page;
+            switch_highlight(prev_index_list, index_list);
+
+        } else if (key_info.Key.Equals(ConsoleKey.PageUp)) {
+            prev_index_list = index_list;
+            if (index_list - rows_of_a_page < 0) index_list = 0;
+            else index_list -= rows_of_a_page;
+            switch_highlight(prev_index_list, index_list);
+
         } else {
             Console.Beep();
         }
+        if (index_list == 0) {
+            Console.SetCursorPosition(0, 0);
+            Console.CursorVisible = false;
+        }
     }
 } while (true);
+
+void change_dir(string path) {
+    last_opened_directory = opened_directory;
+    opened_directory = list[index_list];
+    index_list = 0;
+    prev_index_list = 0;
+    files = Directory.GetFiles(opened_directory);
+    dirs = Directory.GetDirectories(opened_directory);
+    list = new string[files.Length + dirs.Length];
+    dirs.CopyTo(list, 0);
+    files.CopyTo(list, dirs.Length);
+    refresh();
+}
 
 void switch_highlight(int i_from, int i_to) {
     i_from++; //index from
@@ -69,7 +112,7 @@ void switch_highlight(int i_from, int i_to) {
     } catch (Exception e) {
         //nothing
     }
-    reset_cursor();
+    Console.CursorVisible = false;
     //Console.MoveBufferArea(0, first, Console.BufferWidth, 1, 0, Console.BufferHeight - 1);
     //Console.MoveBufferArea(0, second, Console.BufferWidth, 1, 0, first);
     //Console.MoveBufferArea(0, Console.BufferHeight - 1, Console.BufferWidth, 1, 0, second);
@@ -89,7 +132,7 @@ void refresh() {
     int i = 0;
     foreach (string element in list) {
         if (i == list.Length - 1) {
-            return;
+            break;
         } else if (i == index_list) {
             // this record must be highlighted because the cursor is here
             Console.ForegroundColor = ConsoleColor.Yellow;
@@ -100,11 +143,6 @@ void refresh() {
         Console.Write("" + split[split.Length - 1]);
         i++;
     }
-    reset_cursor();
-}
-
-void reset_cursor() {
     Console.SetCursorPosition(0, 0);
     Console.CursorVisible = false;
-    Console.ResetColor();
 }
