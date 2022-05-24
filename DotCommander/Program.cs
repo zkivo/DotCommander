@@ -16,10 +16,11 @@ ConsoleModifiers mod;
 //int width  = Console.BufferWidth   = Console.WindowWidth;
 
 string[] files = Directory.GetFiles(opened_directory);
-string[] dirs = Directory.GetDirectories(opened_directory);
+string[] dirs  = Directory.GetDirectories(opened_directory);
+string[] list  = new string[files.Length + dirs.Length]; 
+dirs.CopyTo(list, 0);
+files.CopyTo(list, dirs.Length);
 string[] split;
-
-int num_elements = files.Length + dirs.Length;
 
 refresh();
 do {
@@ -31,7 +32,7 @@ do {
     } else {
         // None modifiers have been pressed
         if (key_info.Key.Equals(ConsoleKey.DownArrow)) {
-            if (index_list < num_elements - 2) {
+            if (index_list < list.Length - 2) {
                 switch_highlight(index_list, index_list + 1);
                 index_list++;
             }
@@ -52,10 +53,11 @@ void switch_highlight(int i_from, int i_to) {
     i_from++; //index from
     i_to++;   //index to
     Console.ResetColor();
+    Console.ForegroundColor = ConsoleColor.White;
     try {
         Console.CursorLeft = 0;
         Console.CursorTop  = i_from;
-        Console.Write(files[i_from - 1].Split("\\").Last<string>());
+        Console.Write(list[i_from - 1].Split("\\").Last<string>());
     } catch (Exception e) {
         //nothing
     }
@@ -63,7 +65,7 @@ void switch_highlight(int i_from, int i_to) {
     try {
         Console.CursorLeft = 0;
         Console.CursorTop  = i_to;
-        Console.Write(files[i_to - 1].Split("\\").Last<string>());
+        Console.Write(list[i_to - 1].Split("\\").Last<string>());
     } catch (Exception e) {
         //nothing
     }
@@ -85,27 +87,14 @@ void refresh() {
     Console.ForegroundColor = ConsoleColor.White;
     //int index = files.Length % index_list;
     int i = 0;
-    foreach (string dir in dirs) {
-        if (i == num_elements - 1) {
+    foreach (string element in list) {
+        if (i == list.Length - 1) {
             return;
         } else if (i == index_list) {
             // this record must be highlighted because the cursor is here
             Console.ForegroundColor = ConsoleColor.Yellow;
         } else Console.ForegroundColor = ConsoleColor.White;
-        split = dir.Split('\\');
-        Console.CursorLeft = 0;
-        Console.CursorTop = i + 1;
-        Console.Write("" + split[split.Length - 1]);
-        i++;
-    }
-    foreach (string file in files) {
-        if (i == num_elements - 1) {
-            return;
-        } else if (i == index_list) {
-            // this record must be highlighted because the cursor is here
-            Console.ForegroundColor = ConsoleColor.Yellow;
-        } else Console.ForegroundColor = ConsoleColor.White;
-        split = file.Split('\\');
+        split = element.Split('\\');
         Console.CursorLeft = 0;
         Console.CursorTop = i + 1;
         Console.Write("" + split[split.Length - 1]);
