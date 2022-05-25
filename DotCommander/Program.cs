@@ -10,17 +10,18 @@ ConsoleModifiers mod;
 string[] split;
 
 int rows_of_a_page = Console.WindowHeight;
+Console.TreatControlCAsInput = true;
 
-string last_opened_directory = "";
-string opened_directory = "G:\\Il mio Drive\\Università";
+string last_open_directory = "G:\\Il mio Drive\\Università";
+string open_directory      = "G:\\Il mio Drive\\Università";
 int index_list = 0;
 int prev_index_list = 0;
 
 //int height = Console.BufferHeight  = Console.WindowHeight; // one line is used as a buffer 
 //int width  = Console.BufferWidth   = Console.WindowWidth;
 
-string[] files = Directory.GetFiles(opened_directory);
-string[] dirs  = Directory.GetDirectories(opened_directory);
+string[] files = Directory.GetFiles(open_directory);
+string[] dirs  = Directory.GetDirectories(open_directory);
 string[] list  = new string[files.Length + dirs.Length]; 
 dirs.CopyTo(list, 0);
 files.CopyTo(list, dirs.Length);
@@ -29,11 +30,11 @@ refresh();
 do {
     key_info = Console.ReadKey(true);
     mod = key_info.Modifiers; // alt, shift, ctrl modifiers information alt=1,shift=2,ctrl=4
-    if (mod.Equals(ConsoleModifiers.Alt)) {
+    if (mod == ConsoleModifiers.Alt) {
         // just alt have been pressed
         if (key_info.Key.Equals(ConsoleKey.LeftArrow)) {
             // go to previous path
-            change_dir(last_opened_directory);
+            change_dir(last_open_directory);
         }
     } else {
         // None modifiers have been pressed
@@ -80,12 +81,12 @@ do {
 } while (true);
 
 void change_dir(string path) {
-    last_opened_directory = opened_directory;
-    opened_directory = list[index_list];
+    last_open_directory = open_directory;
+    open_directory = path;
     index_list = 0;
     prev_index_list = 0;
-    files = Directory.GetFiles(opened_directory);
-    dirs = Directory.GetDirectories(opened_directory);
+    files = Directory.GetFiles(open_directory);
+    dirs = Directory.GetDirectories(open_directory);
     list = new string[files.Length + dirs.Length];
     dirs.CopyTo(list, 0);
     files.CopyTo(list, dirs.Length);
@@ -119,13 +120,13 @@ void switch_highlight(int i_from, int i_to) {
 }
 
 void refresh() {
-    Console.Title = opened_directory + " - Dot-Commander";
+    Console.Title = open_directory + " - Dot-Commander";
     Console.Clear();
     Console.CursorTop  = 0;
     Console.CursorLeft = 0;
     Console.BackgroundColor = ConsoleColor.Black; 
     Console.ForegroundColor = ConsoleColor.Blue;
-    Console.Write("   " + opened_directory + "   ");
+    Console.Write("   " + open_directory + "   ");
     Console.BackgroundColor = ConsoleColor.Black;
     Console.ForegroundColor = ConsoleColor.White;
     //int index = files.Length % index_list;
