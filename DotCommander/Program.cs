@@ -118,19 +118,50 @@ void change_dir(string path) {
 void switch_highlight(int i_from, int i_to) {
     i_from++; //index from
     i_to++;   //index to
-    Console.ResetColor();
-    Console.ForegroundColor = ConsoleColor.White;
+    /*
+     * looks where index_from is pointing to and set the color
+     * based on wheter it is a file or a directory
+     * this part does not highlight
+     */
+    int cursor_left = 0;
+    if (i_from >= dirs.Length - 1) {
+        // index from points a file
+        Console.BackgroundColor = ConsoleColor.DarkGray;
+        Console.ForegroundColor = ConsoleColor.Yellow;
+    } else {
+        // points to a directory
+        cursor_left++;
+        Console.BackgroundColor = ConsoleColor.Black;
+        Console.ForegroundColor = ConsoleColor.DarkYellow;
+    }
     try {
-        Console.CursorLeft = 0;
-        Console.CursorTop  = i_from;
+        Console.SetCursorPosition(0, i_from);
+        if (cursor_left > 0) Console.Write("\\");
+        Console.CursorLeft = cursor_left;
         Console.Write(list[i_from - 1].Split("\\").Last<string>());
     } catch (Exception e) {
         //nothing
     }
-    Console.ForegroundColor = ConsoleColor.Yellow;
+    /*
+     * looks where index_to is pointing to and set the color
+     * based on wheter it is a file or a directory
+     * this part highlights
+     */
+    cursor_left = 0;
+    if (i_to >= dirs.Length - 1) {
+        // index from points a file
+        Console.BackgroundColor = ConsoleColor.DarkBlue;
+        Console.ForegroundColor = ConsoleColor.White;
+    } else {
+        // points to a dir
+        cursor_left++;
+        Console.BackgroundColor = ConsoleColor.DarkGray;
+        Console.ForegroundColor = ConsoleColor.Yellow;
+    }
     try {
-        Console.CursorLeft = 0;
-        Console.CursorTop  = i_to;
+        Console.SetCursorPosition(0, i_to);
+        if (cursor_left > 0) Console.Write("\\");
+        Console.CursorLeft = cursor_left;
         Console.Write(list[i_to - 1].Split("\\").Last<string>());
     } catch (Exception e) {
         //nothing
@@ -147,20 +178,41 @@ void refresh() {
     Console.CursorTop  = 0;
     Console.CursorLeft = 0;
     Console.BackgroundColor = ConsoleColor.Black; 
-    Console.ForegroundColor = ConsoleColor.Blue;
+    Console.ForegroundColor = ConsoleColor.Yellow;
     Console.Write("   " + open_directory + "   ");
     Console.BackgroundColor = ConsoleColor.Black;
     Console.ForegroundColor = ConsoleColor.White;
     //int index = files.Length % index_list;
     int i = 0;
-    foreach (string element in list) {
+    foreach (string dir in dirs) {
         if (i == list.Length) {
             break;
         } else if (i == index_list) {
             // this record must be highlighted because the cursor is here
+            Console.BackgroundColor = ConsoleColor.DarkGray;
             Console.ForegroundColor = ConsoleColor.Yellow;
-        } else Console.ForegroundColor = ConsoleColor.White;
-        split = element.Split('\\');
+        } else {
+            Console.BackgroundColor = ConsoleColor.Black;
+            Console.ForegroundColor = ConsoleColor.DarkYellow;
+        }
+        split = dir.Split('\\');
+        Console.CursorLeft = 0;
+        Console.CursorTop = i + 1;
+        Console.Write("\\" + split[split.Length - 1]);
+        i++;
+    }
+    foreach (string file in files) {
+        if (i == list.Length) {
+            break;
+        } else if (i == index_list) {
+            // this record must be highlighted because the cursor is here
+            Console.BackgroundColor = ConsoleColor.DarkBlue;
+            Console.ForegroundColor = ConsoleColor.White;
+        } else {
+            Console.BackgroundColor = ConsoleColor.Black;
+            Console.ForegroundColor = ConsoleColor.DarkGreen;
+        }
+        split = file.Split('\\');
         Console.CursorLeft = 0;
         Console.CursorTop = i + 1;
         Console.Write("" + split[split.Length - 1]);
