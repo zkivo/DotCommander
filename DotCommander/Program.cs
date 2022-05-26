@@ -6,14 +6,18 @@
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 
+const float RESET_SEATCH_TIME = 0.8f; //seconds
+
 ConsoleKeyInfo key_info;
 ConsoleModifiers mod;
 string[] split;
-DateTime prev_time;
-DateTime time;
+string search_str = "";
+DateTime prev_time = DateTime.Now;
+TimeSpan diff;
+Regex alphanum_regex = new Regex(@"^[a-zA-Z0-9\s,]*$");
 
 int rows_of_a_page = Console.WindowHeight;
-Console.TreatControlCAsInput = true;
+Console.TreatControlCAsInput = true; // also treats the other modifiers as input
 
 string last_open_directory = "G:\\Il mio Drive\\Università";
 string open_directory      = "G:\\Il mio Drive\\Università";
@@ -41,11 +45,29 @@ do {
         }*/
     } else {
         // None modifiers have been pressed
-        if (isAlphanumeric(key_info.KeyChar.ToString())) {
+        if (key_info.Key.Equals(ConsoleKey.Enter)) {
+            /* if it is a directory change the current dir
+             * otherwise open the file or program */
+            if (File.Exists(list[index_list])) {
+                Process.Start(new ProcessStartInfo(list[index_list]) { UseShellExecute = true });
+            } else if (Directory.Exists(list[index_list])) {
+                change_dir(list[index_list]);
+            } else {
+                Console.Write("dunno 2");
+            }
+        } else if (is_alphanumeric(key_info.KeyChar.ToString())) {
             // enters here if the input is alphanumeric
             // this code checks the list to find what
-            // people text
-            if (prev_time.Equals(null)) { }
+            // people write
+            diff = DateTime.Now - prev_time;
+            if (diff.TotalSeconds < RESET_SEATCH_TIME) {
+                search_str += key_info.KeyChar.ToString();
+            } else {
+                // repeat the search
+                search_str = key_info.KeyChar.ToString();
+            }
+            search_string(search_str);
+            prev_time = DateTime.Now;
         } else if (key_info.Key.Equals(ConsoleKey.DownArrow)) {
             if (index_list < list.Length - 1) {
                 switch_highlight(index_list, index_list + 1);
@@ -55,16 +77,6 @@ do {
             if (index_list > 0) {
                 switch_highlight(index_list, index_list - 1);
                 index_list--;
-            }
-        } else if (key_info.Key.Equals(ConsoleKey.Enter)) {
-            /* if it is a directory change the current dir
-             * otherwise open the file or program */
-            if (File.Exists(list[index_list])) {
-                Process.Start(new ProcessStartInfo(list[index_list]) { UseShellExecute = true });
-            } else if (Directory.Exists(list[index_list])) {
-                change_dir(list[index_list]);
-            } else {
-                Console.Write("dunno 2");
             }
         } else if (key_info.Key.Equals(ConsoleKey.PageDown)) {
             prev_index_list = index_list;
@@ -158,7 +170,19 @@ void refresh() {
     Console.CursorVisible = false;
 }
 
-bool isAlphanumeric(string str) {
-    Regex regex = new Regex(@"^[a-zA-Z0-9\s,]*$");
-    return regex.IsMatch(str);
+void search_string(string str) {
+    int i = 0;
+    foreach (string element in list) {
+        if (element.Contains(str, StringComparison.CurrentCultureIgnoreCase)) {
+            // str is in the list
+            switch_highlight(index_list, i);
+            index_list = i;
+            break;
+        }
+        i++;
+    }
+}
+
+bool is_alphanumeric(string str) {
+    return alphanum_regex.IsMatch(str);
 }
