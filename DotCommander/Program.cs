@@ -4,10 +4,13 @@
 // Console.WriteLine(Console.WindowWidth);
 
 using System.Diagnostics;
+using System.Text.RegularExpressions;
 
 ConsoleKeyInfo key_info;
 ConsoleModifiers mod;
 string[] split;
+DateTime prev_time;
+DateTime time;
 
 int rows_of_a_page = Console.WindowHeight;
 Console.TreatControlCAsInput = true;
@@ -30,15 +33,20 @@ refresh();
 do {
     key_info = Console.ReadKey(true);
     mod = key_info.Modifiers; // alt, shift, ctrl modifiers information alt=1,shift=2,ctrl=4
-    if (mod == ConsoleModifiers.Alt) {
-        // just alt have been pressed
-        if (key_info.Key.Equals(ConsoleKey.LeftArrow)) {
+    if (mod > 0) {
+        // some modifiers have been pressed
+        /*if (key_info.Key.Equals(ConsoleKey.LeftArrow)) {
             // go to previous path
             change_dir(last_open_directory);
-        }
+        }*/
     } else {
         // None modifiers have been pressed
-        if (key_info.Key.Equals(ConsoleKey.DownArrow)) {
+        if (isAlphanumeric(key_info.KeyChar.ToString())) {
+            // enters here if the input is alphanumeric
+            // this code checks the list to find what
+            // people text
+            if (prev_time.Equals(null)) { }
+        } else if (key_info.Key.Equals(ConsoleKey.DownArrow)) {
             if (index_list < list.Length - 1) {
                 switch_highlight(index_list, index_list + 1);
                 index_list++;
@@ -70,6 +78,8 @@ do {
             else index_list -= rows_of_a_page;
             switch_highlight(prev_index_list, index_list);
 
+        } else if (key_info.Key.Equals(ConsoleKey.Backspace)) {
+            change_dir(last_open_directory);
         } else {
             Console.Beep();
         }
@@ -132,7 +142,7 @@ void refresh() {
     //int index = files.Length % index_list;
     int i = 0;
     foreach (string element in list) {
-        if (i == list.Length - 1) {
+        if (i == list.Length) {
             break;
         } else if (i == index_list) {
             // this record must be highlighted because the cursor is here
@@ -146,4 +156,9 @@ void refresh() {
     }
     Console.SetCursorPosition(0, 0);
     Console.CursorVisible = false;
+}
+
+bool isAlphanumeric(string str) {
+    Regex regex = new Regex(@"^[a-zA-Z0-9\s,]*$");
+    return regex.IsMatch(str);
 }
