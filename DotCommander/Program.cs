@@ -15,20 +15,21 @@ string search_str = "";
 DateTime prev_time = DateTime.Now;
 TimeSpan diff;
 Regex alphanum_regex = new Regex(@"^[a-zA-Z0-9\s,]*$");
+List<string> history_dirs = new List<string>();
 
 int rows_of_a_page = Console.WindowHeight;
 Console.TreatControlCAsInput = true; // also treats the other modifiers as input
 
-string last_open_directory = "G:\\Il mio Drive\\Università";
-string open_directory      = "G:\\Il mio Drive\\Università";
+//string open_directory      = "G:\\Il mio Drive\\Università";
+history_dirs.Add("G:\\Il mio Drive\\Università");
 int index_list = 0;
 int prev_index_list = 0;
 
 //int height = Console.BufferHeight  = Console.WindowHeight; // one line is used as a buffer 
 //int width  = Console.BufferWidth   = Console.WindowWidth;
 
-string[] files = Directory.GetFiles(open_directory);
-string[] dirs  = Directory.GetDirectories(open_directory);
+string[] files = Directory.GetFiles(history_dirs.Last<string>());
+string[] dirs  = Directory.GetDirectories(history_dirs.Last<string>());
 string[] list  = new string[files.Length + dirs.Length]; 
 dirs.CopyTo(list, 0);
 files.CopyTo(list, dirs.Length);
@@ -39,10 +40,19 @@ do {
     mod = key_info.Modifiers; // alt, shift, ctrl modifiers information alt=1,shift=2,ctrl=4
     if (mod > 0) {
         // some modifiers have been pressed
-        /*if (key_info.Key.Equals(ConsoleKey.LeftArrow)) {
-            // go to previous path
-            change_dir(last_open_directory);
-        }*/
+        if (mod == ConsoleModifiers.Control) {
+            //just ctrl has been pressed
+            if (key_info.Key.Equals(ConsoleKey.C)) {
+                // go to previous path
+                Environment.Exit(0);
+            }
+        } else if (mod == ConsoleModifiers.Alt) {
+            // just alt has been pressed
+        } else if (mod == ConsoleModifiers.Shift) {
+            // just shift has been pressed
+        } else {
+            // a combination of the mods has been performed
+        }
     } else {
         // None modifiers have been pressed
         if (key_info.Key.Equals(ConsoleKey.Enter)) {
@@ -51,6 +61,7 @@ do {
             if (File.Exists(list[index_list])) {
                 Process.Start(new ProcessStartInfo(list[index_list]) { UseShellExecute = true });
             } else if (Directory.Exists(list[index_list])) {
+                history_dirs.Add(list[index_list]);
                 change_dir(list[index_list]);
             } else {
                 Console.Write("dunno 2");
@@ -91,7 +102,14 @@ do {
             switch_highlight(prev_index_list, index_list);
 
         } else if (key_info.Key.Equals(ConsoleKey.Backspace)) {
-            change_dir(last_open_directory);
+            string str_go_to;
+            try {
+                history_dirs.RemoveAt(history_dirs.Count - 1);
+                str_go_to = history_dirs.Last<string>();
+                change_dir(str_go_to);
+            } catch(Exception e) {
+                Console.Beep();
+            }
         } else {
             Console.Beep();
         }
@@ -103,12 +121,12 @@ do {
 } while (true);
 
 void change_dir(string path) {
-    last_open_directory = open_directory;
-    open_directory = path;
+    //history_dirs.Add(path);
+    //open_directory = path;
     index_list = 0;
     prev_index_list = 0;
-    files = Directory.GetFiles(open_directory);
-    dirs = Directory.GetDirectories(open_directory);
+    files = Directory.GetFiles(path);
+    dirs = Directory.GetDirectories(path);
     list = new string[files.Length + dirs.Length];
     dirs.CopyTo(list, 0);
     files.CopyTo(list, dirs.Length);
@@ -169,14 +187,14 @@ void switch_highlight(int i_from, int i_to) {
 }
 
 void refresh() {
-    Console.Title = open_directory + " - Dot-Commander";
+    Console.Title = history_dirs.Last<string>() + " - Dot-Commander";
     Console.ResetColor();
     Console.Clear();
     Console.CursorTop  = 0;
     Console.CursorLeft = 0;
     Console.BackgroundColor = ConsoleColor.Black; 
     Console.ForegroundColor = ConsoleColor.Yellow;
-    Console.Write("   " + open_directory + "   ");
+    Console.Write("   " + history_dirs.Last<string>() + "   ");
     Console.BackgroundColor = ConsoleColor.Black;
     Console.ForegroundColor = ConsoleColor.White;
     //int index = files.Length % index_list;
@@ -222,7 +240,7 @@ void refresh() {
 void search_string(string str) {
     int i = 0;
     foreach (string element in list) {
-        if (element.Contains(str, StringComparison.CurrentCultureIgnoreCase)) {
+        if (element.Split("\\").Last<string>().StartsWith(str, StringComparison.CurrentCultureIgnoreCase)) {
             // str is in the list
             switch_highlight(index_list, i);
             index_list = i;
