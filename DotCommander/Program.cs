@@ -61,7 +61,7 @@ do {
             if (File.Exists(list[index_list])) {
                 Process.Start(new ProcessStartInfo(list[index_list]) { UseShellExecute = true });
             } else if (Directory.Exists(list[index_list])) {
-                history_dirs.Add(list[index_list]);
+                //history_dirs.Add(list[index_list]);
                 change_dir(list[index_list]);
             } else {
                 Console.Write("dunno 2");
@@ -103,10 +103,16 @@ do {
 
         } else if (key_info.Key.Equals(ConsoleKey.Backspace)) {
             string str_go_to;
+            int num;
             try {
-                history_dirs.RemoveAt(history_dirs.Count - 1);
-                str_go_to = history_dirs.Last<string>();
-                change_dir(str_go_to);
+                num = history_dirs.Count;
+                if (num > 1) {
+                    // not in the first dir of the history
+                    history_dirs.RemoveAt(num - 1);
+                    str_go_to = history_dirs.Last<string>();
+                    history_dirs.RemoveAt(num - 2);
+                    change_dir(str_go_to);
+                }
             } catch(Exception e) {
                 Console.Beep();
             }
@@ -121,7 +127,7 @@ do {
 } while (true);
 
 void change_dir(string path) {
-    //history_dirs.Add(path);
+    history_dirs.Add(path);
     //open_directory = path;
     index_list = 0;
     prev_index_list = 0;
