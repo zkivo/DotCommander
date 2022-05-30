@@ -22,7 +22,7 @@ Console.TreatControlCAsInput = true; // also treats the other modifiers as input
 
 //string open_directory      = "G:\\Il mio Drive\\Università";
 history_dirs.Add("G:\\Il mio Drive\\Università");
-int index_list = 0;
+int index_list      = 0;
 int prev_index_list = 0;
 
 //int height = Console.BufferHeight  = Console.WindowHeight; // one line is used as a buffer 
