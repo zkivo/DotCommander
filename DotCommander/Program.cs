@@ -18,6 +18,7 @@ Regex alphanum_regex = new Regex(@"^[a-zA-Z0-9\s,]*$");
 List<string> history_dirs = new List<string>();
 
 int rows_of_a_page = Console.WindowHeight;
+int cols_of_a_page = Console.WindowWidth;
 Console.TreatControlCAsInput = true; // also treats the other modifiers as input
 
 //string open_directory      = "G:\\Il mio Drive\\Università";
@@ -34,7 +35,10 @@ string[] list  = new string[files.Length + dirs.Length];
 dirs.CopyTo(list, 0);
 files.CopyTo(list, dirs.Length);
 
+DotCommander.DirectoryBox db = new DotCommander.DirectoryBox(60,0,120,30, "G:\\Il mio Drive\\Università");
+
 refresh();
+db.draw();
 do {
     key_info = Console.ReadKey(true);
     mod = key_info.Modifiers; // alt, shift, ctrl modifiers information alt=1,shift=2,ctrl=4
@@ -62,7 +66,9 @@ do {
                 Process.Start(new ProcessStartInfo(list[index_list]) { UseShellExecute = true });
             } else if (Directory.Exists(list[index_list])) {
                 //history_dirs.Add(list[index_list]);
+                string app = list[index_list];
                 change_dir(list[index_list]);
+                db.change_dir(app);
             } else {
                 Console.Write("dunno 2");
             }
