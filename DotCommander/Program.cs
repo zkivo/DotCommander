@@ -75,8 +75,8 @@ do {
             // enters here if the input is alphanumeric
             // this code checks the list to find what
             // people write
-            if   (left_db_focus) db_left.typed_alphanumeric();
-            else db_right.typed_alphanumeric();
+            if (left_db_focus) db_left.typed_alphanumeric(key_info.KeyChar);
+            else db_right.typed_alphanumeric(key_info.KeyChar);
 
         } else if (key_info.Key.Equals(ConsoleKey.DownArrow)) {
             if (index_list < list.Length - 1) {
@@ -243,19 +243,6 @@ void refresh() {
     }
     Console.SetCursorPosition(0, 0);
     Console.CursorVisible = false;
-}
-
-void search_string(string str) {
-    int i = 0;
-    foreach (string element in list) {
-        if (element.Split("\\").Last<string>().StartsWith(str, StringComparison.CurrentCultureIgnoreCase)) {
-            // str is in the list
-            switch_highlight(index_list, i);
-            index_list = i;
-            break;
-        }
-        i++;
-    }
 }
 
 bool is_alphanumeric(string str) {

@@ -18,6 +18,7 @@ namespace DotCommander {
         private int index_list;
         private int prev_index_list;
         private DateTime prev_time;
+        private string   search_str;
 
         public DirectoryBox(int top_left_x, int top_left_y, int bottom_right_x, int bottom_right_y, string path) {
             this.top_left.x = top_left_x;
@@ -34,7 +35,8 @@ namespace DotCommander {
                 this.list.Add(temp);
             }
             this.index_list = 0;
-            this.prev_time = DateTime.Now;
+            this.prev_time  = DateTime.Now;
+            this.search_str = "";
         }
 
         public void enter_pressed() {
@@ -47,13 +49,26 @@ namespace DotCommander {
             }
         }
 
-        public void typed_alphanumeric() {
+        void search_string(string str) {
+            int i = 0;
+            foreach (string element in list) {
+                if (element.Split("\\").Last<string>().StartsWith(str, StringComparison.CurrentCultureIgnoreCase)) {
+                    // str is in the list
+                    switch_highlight(index_list, i);
+                    index_list = i;
+                    break;
+                }
+                i++;
+            }
+        }
+
+        public void typed_alphanumeric(char character) {
             TimeSpan diff = DateTime.Now - prev_time;
             if (diff.TotalSeconds < RESET_SEATCH_TIME) {
-                search_str += key_info.KeyChar.ToString();
+                search_str += character.ToString();
             } else {
                 // repeat the search
-                search_str = key_info.KeyChar.ToString();
+                search_str = character.ToString();
             }
             search_string(search_str);
             prev_time = DateTime.Now;
