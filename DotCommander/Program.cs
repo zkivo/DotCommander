@@ -26,19 +26,25 @@ history_dirs.Add("G:\\Il mio Drive\\Università");
 int index_list      = 0;
 int prev_index_list = 0;
 
+bool left_db_focus = true; // specifies if the focus is on the
+                           // left directory box
+
 //int height = Console.BufferHeight  = Console.WindowHeight; // one line is used as a buffer 
 //int width  = Console.BufferWidth   = Console.WindowWidth;
 
-string[] files = Directory.GetFiles(history_dirs.Last<string>());
+/*string[] files = Directory.GetFiles(history_dirs.Last<string>());
 string[] dirs  = Directory.GetDirectories(history_dirs.Last<string>());
 string[] list  = new string[files.Length + dirs.Length]; 
 dirs.CopyTo(list, 0);
-files.CopyTo(list, dirs.Length);
+files.CopyTo(list, dirs.Length);*/
 
-DotCommander.DirectoryBox db = new DotCommander.DirectoryBox(60,0,120,30, "G:\\Il mio Drive\\Università");
 
-refresh();
-db.draw();
+DotCommander.DirectoryBox db_left  = new DotCommander.DirectoryBox(60, 0, 120, 30, "G:\\Il mio Drive\\Università");
+DotCommander.DirectoryBox db_right = new DotCommander.DirectoryBox(0,  0, 120, 30, "G:\\Il mio Drive\\Università");
+
+//refresh();
+db_left.draw();
+db_right.draw();
 do {
     key_info = Console.ReadKey(true);
     mod = key_info.Modifiers; // alt, shift, ctrl modifiers information alt=1,shift=2,ctrl=4
@@ -62,29 +68,16 @@ do {
         if (key_info.Key.Equals(ConsoleKey.Enter)) {
             /* if it is a directory change the current dir
              * otherwise open the file or program */
-            if (File.Exists(list[index_list])) {
-                Process.Start(new ProcessStartInfo(list[index_list]) { UseShellExecute = true });
-            } else if (Directory.Exists(list[index_list])) {
-                //history_dirs.Add(list[index_list]);
-                string app = list[index_list];
-                change_dir(list[index_list]);
-                db.change_dir(app);
-            } else {
-                Console.Write("dunno 2");
-            }
+            if (left_db_focus) db_left.enter_pressed();
+            else db_right.enter_pressed();
+
         } else if (is_alphanumeric(key_info.KeyChar.ToString())) {
             // enters here if the input is alphanumeric
             // this code checks the list to find what
             // people write
-            diff = DateTime.Now - prev_time;
-            if (diff.TotalSeconds < RESET_SEATCH_TIME) {
-                search_str += key_info.KeyChar.ToString();
-            } else {
-                // repeat the search
-                search_str = key_info.KeyChar.ToString();
-            }
-            search_string(search_str);
-            prev_time = DateTime.Now;
+            if   (left_db_focus) db_left.typed_alphanumeric();
+            else db_right.typed_alphanumeric();
+
         } else if (key_info.Key.Equals(ConsoleKey.DownArrow)) {
             if (index_list < list.Length - 1) {
                 switch_highlight(index_list, index_list + 1);
@@ -145,7 +138,7 @@ void change_dir(string path) {
     list = new string[files.Length + dirs.Length];
     dirs.CopyTo(list, 0);
     files.CopyTo(list, dirs.Length);
-    refresh();
+    //refresh();
 }
 
 void switch_highlight(int i_from, int i_to) {

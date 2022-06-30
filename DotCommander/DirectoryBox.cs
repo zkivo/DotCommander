@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,12 +9,15 @@ namespace DotCommander {
 
     internal class DirectoryBox {
 
+        private const float RESET_SEATCH_TIME = 0.8f; //seconds
+
         private (int x, int y) top_left;     // coordinate of the buffer
         private (int x, int y) bottom_right;
         private List<string> history_dirs;
         private List<string> list;
         private int index_list;
         private int prev_index_list;
+        private DateTime prev_time;
 
         public DirectoryBox(int top_left_x, int top_left_y, int bottom_right_x, int bottom_right_y, string path) {
             this.top_left.x = top_left_x;
@@ -30,6 +34,29 @@ namespace DotCommander {
                 this.list.Add(temp);
             }
             this.index_list = 0;
+            this.prev_time = DateTime.Now;
+        }
+
+        public void enter_pressed() {
+            if (File.Exists(list[index_list])) {
+                Process.Start(new ProcessStartInfo(list[index_list]) { UseShellExecute = true });
+            } else if (Directory.Exists(list[index_list])) {
+                change_dir(list[index_list]);
+            } else {
+                Console.Write("ERROR: 6364");
+            }
+        }
+
+        public void typed_alphanumeric() {
+            TimeSpan diff = DateTime.Now - prev_time;
+            if (diff.TotalSeconds < RESET_SEATCH_TIME) {
+                search_str += key_info.KeyChar.ToString();
+            } else {
+                // repeat the search
+                search_str = key_info.KeyChar.ToString();
+            }
+            search_string(search_str);
+            prev_time = DateTime.Now;
         }
 
         public void draw() {
