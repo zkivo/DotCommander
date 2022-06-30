@@ -88,11 +88,13 @@ do {
         } else if (key_info.Key.Equals(ConsoleKey.DownArrow)) {
             if (index_list < list.Length - 1) {
                 switch_highlight(index_list, index_list + 1);
+                db.switch_highlight(index_list, index_list + 1);
                 index_list++;
             }
         } else if (key_info.Key.Equals(ConsoleKey.UpArrow)) {
             if (index_list > 0) {
                 switch_highlight(index_list, index_list - 1);
+                db.switch_highlight(index_list, index_list - 1);
                 index_list--;
             }
         } else if (key_info.Key.Equals(ConsoleKey.PageDown)) {
@@ -118,7 +120,8 @@ do {
                     str_go_to = history_dirs.Last<string>();
                     history_dirs.RemoveAt(num - 2);
                     change_dir(str_go_to);
-                }
+                    db.change_dir(str_go_to);
+                } 
             } catch(Exception e) {
                 Console.Beep();
             }

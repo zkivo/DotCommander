@@ -75,6 +75,44 @@ namespace DotCommander {
             Console.CursorVisible = false;
         }
 
+        public void switch_highlight(int i_from, int i_to) {
+            /*
+             * looks where index_from is pointing to and set the color
+             * based on wheter it is a file or a directory
+             * this part does not highlight
+             */
+            
+            // ------ FROM -------
+            
+            Console.SetCursorPosition(top_left.x, top_left.y + i_from + 1);
+            if (File.Exists(list[i_from])) {
+                set_file_color(false);
+            } else if (Directory.Exists(list[i_from])) {
+                set_directory_color(false);
+                Console.Write("\\");
+            } else {
+                Console.WriteLine("ERROR: 6254");
+            }
+            Console.Write(list[i_from].Split("\\").Last<string>());
+            
+            // ------ TO -------
+            
+            Console.SetCursorPosition(top_left.x, top_left.y + i_to + 1);
+            if (File.Exists(list[i_to])) {
+                set_file_color(true);
+            } else if (Directory.Exists(list[i_to])) {
+                set_directory_color(true);
+                Console.Write("\\");
+            } else {
+                Console.WriteLine("ERROR: 6255");
+            }
+            Console.Write(list[i_to].Split("\\").Last<string>());
+         
+            
+            Console.CursorVisible = false;
+            this.index_list = i_to;
+}
+
         public void change_dir(string path) {
             history_dirs.Add(path);
             index_list = 0;
