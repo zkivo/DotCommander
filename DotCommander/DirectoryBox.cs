@@ -10,8 +10,8 @@ namespace DotCommander {
     internal class DirectoryBox {
 
         private const float RESET_SEATCH_TIME = 0.8f; //seconds
-        private static int rows_of_a_page = Console.WindowHeight;
-        private static int cols_of_a_page = Console.WindowWidth;
+        //private static int rows_of_a_page = Console.WindowHeight;
+        //private static int cols_of_a_page = Console.WindowWidth;
 
         private (int x, int y) top_left;     // coordinate of the buffer
         private (int x, int y) bottom_right;
@@ -22,6 +22,8 @@ namespace DotCommander {
         private DateTime prev_time;
         private string   search_str;
         private string   blank_line;
+        private int cols_of_the_box;
+        private int rows_of_the_box;
 
         public DirectoryBox(int top_left_x, int top_left_y, int bottom_right_x, int bottom_right_y, string path) {
             this.top_left.x = top_left_x;
@@ -41,7 +43,9 @@ namespace DotCommander {
             this.prev_time  = DateTime.Now;
             this.search_str = "";
             this.blank_line = "";
-            for (int i = 0; i < bottom_right_x - top_left_x; i++) {
+            this.rows_of_the_box = bottom_right_y - top_left_y;
+            this.cols_of_the_box = bottom_right_x - top_left_x;
+            for (int i = 0; i < cols_of_the_box; i++) {
                 this.blank_line += " ";
             }
         }
@@ -72,15 +76,15 @@ namespace DotCommander {
 
         public void page_down_pressed() {
             int prev_index_list = index_list;
-            if (index_list + rows_of_a_page >= list.Count) index_list = list.Count - 1;
-            else index_list += rows_of_a_page;
+            if (index_list + rows_of_the_box >= list.Count) index_list = list.Count - 1;
+            else index_list += rows_of_the_box;
             switch_highlight(prev_index_list, index_list);
         }
 
         public void page_up_pressed() {
             int prev_index_list = index_list;
-            if (index_list - rows_of_a_page < 0) index_list = 0;
-            else index_list -= rows_of_a_page;
+            if (index_list - rows_of_the_box < 0) index_list = 0;
+            else index_list -= rows_of_the_box;
             switch_highlight(prev_index_list, index_list);
         }
 
@@ -127,29 +131,34 @@ namespace DotCommander {
         }
 
         public void clear_directory_box() {
-            Console.SetCursorPosition(top_left.x, top_left.y);
             Console.ResetColor();
-            Console.WriteLine(blank_line);
+            int i = 0;
             foreach (string element in this.list) {
-                Console.WriteLine(blank_line);
+                Console.SetCursorPosition(top_left.x, top_left.y + i);
+                Console.Write(blank_line);
+                i++;
             }
         }
 
         public void draw() {
-
-            string[] split;
             int i = 0;
 
             /* drawing */
             Console.SetCursorPosition(top_left.x, top_left.y);
             Console.ResetColor();
             Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.Write("   " + history_dirs.Last<string>() + "   ");
+            try {
+                /* when writing a string on the console
+                 * can happen that the string is bigger of the box,
+                 * if this happens we cut it otherwise we write all the string */
+                Console.Write("   " + history_dirs.Last<string>().Substring(0, cols_of_the_box - 4));
+            } catch (System.ArgumentOutOfRangeException e) {
+                Console.Write("   " + history_dirs.Last<string>());
+            }
             Console.ResetColor();
 
             foreach (string element in this.list) {
                 Console.SetCursorPosition(top_left.x, top_left.y + i + 1);
-                split = element.Split('\\');
                 if (i == list.Count) {
                     break;
                 }
@@ -172,7 +181,14 @@ namespace DotCommander {
                     Console.Write("ERROR: 3756");
                     return;
                 }
-                Console.Write(split[split.Length - 1]);
+                try {
+                    /* when writing a string on the console
+                     * can happen that the string is bigger of the box,
+                     * if this happens we cut it otherwise we write all the string */
+                    Console.Write(list[i].Split("\\").Last<string>().Substring(0, cols_of_the_box - 1));
+                } catch (System.ArgumentOutOfRangeException e) {
+                    Console.Write(list[i].Split("\\").Last<string>());
+                }
                 i++;
             }
             Console.SetCursorPosition(top_left.x, top_left.y);
@@ -197,10 +213,17 @@ namespace DotCommander {
             } else {
                 Console.WriteLine("ERROR: 6254");
             }
-            Console.Write(list[i_from].Split("\\").Last<string>());
-            
+            try {
+                /* when writing a string on the console
+                 * can happen that the string is bigger of the box,
+                 * if this happens we cut it otherwise we write all the string */
+                Console.Write(list[i_from].Split("\\").Last<string>().Substring(0, cols_of_the_box - 1));
+            } catch (System.ArgumentOutOfRangeException e) {
+                Console.Write(list[i_from].Split("\\").Last<string>());
+            }
+
             // ------ TO -------
-            
+
             Console.SetCursorPosition(top_left.x, top_left.y + i_to + 1);
             if (File.Exists(list[i_to])) {
                 set_file_color(true);
@@ -210,9 +233,19 @@ namespace DotCommander {
             } else {
                 Console.WriteLine("ERROR: 6255");
             }
-            Console.Write(list[i_to].Split("\\").Last<string>());
-         
+            try {
+                /* when writing a string on the console
+                 * can happen that the string is bigger of the box,
+                 * if this happens we cut it otherwise we write all the string */
+                Console.Write(list[i_to].Split("\\").Last<string>().Substring(0, cols_of_the_box - 1));
+            } catch (System.ArgumentOutOfRangeException e) {
+                Console.Write(list[i_to].Split("\\").Last<string>());
+            }
+
             Console.CursorVisible = false;
+            if (i_to == 0) {
+                Console.SetCursorPosition(top_left.x, top_left.y);
+            }
             //this.index_list = i_to;
         }
 
