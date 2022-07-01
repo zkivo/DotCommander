@@ -107,6 +107,20 @@ namespace DotCommander {
             }
         }
 
+        public void home_pressed() {
+            switch_highlight(index_list, 0);
+            index_list = 0;
+        }
+
+        public void end_pressed() {
+            switch_highlight(index_list, list.Count - 1);
+            index_list = list.Count - 1;
+        }
+
+        public void focus_link() {
+
+        }
+
         void search_string(string str) {
             int i = 0;
             foreach (string element in list) {
@@ -140,6 +154,8 @@ namespace DotCommander {
                 Console.Write(blank_line);
                 i++;
             }
+            Console.SetCursorPosition(top_left.x, top_left.y + i);
+            Console.Write(blank_line);
         }
 
         public void draw() {
@@ -195,9 +211,7 @@ namespace DotCommander {
             }
             if (this.focus) {
                 Console.SetCursorPosition(top_left.x, top_left.y + index_list);
-            }/* else {
-                Console.SetCursorPosition(pos_x, pos_y);
-            }*/
+            }
             Console.CursorVisible = false;
         }
 
@@ -273,7 +287,14 @@ namespace DotCommander {
             this.focus = !this.focus;
             clear_directory_box();
             draw();
-            
+        }
+
+        public void set_console_cursor() {
+            if (index_list > 0) {
+                Console.SetCursorPosition(top_left.x, top_left.y + index_list + 1);
+            } else {
+                Console.SetCursorPosition(top_left.x, top_left.y);
+            }
         }
 
         private static void set_directory_color(bool highlight) {

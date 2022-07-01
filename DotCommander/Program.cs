@@ -6,45 +6,21 @@
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 
-const float RESET_SEATCH_TIME = 0.8f; //seconds
-
 ConsoleKeyInfo key_info;
 ConsoleModifiers mod;
-string[] split;
-string search_str = "";
-DateTime prev_time = DateTime.Now;
-TimeSpan diff;
 Regex alphanum_regex = new Regex(@"^[a-zA-Z0-9\s,]*$");
-List<string> history_dirs = new List<string>();
 
-int rows_of_a_page = Console.WindowHeight;
-int cols_of_a_page = Console.WindowWidth;
 Console.TreatControlCAsInput = true; // also treats the other modifiers as input
 
-//string open_directory      = "G:\\Il mio Drive\\Università";
-history_dirs.Add("G:\\Il mio Drive\\Università");
-int index_list      = 0;
-int prev_index_list = 0;
+bool left_db_focus = true; // specifies if the focus is on the left box
 
-bool left_db_focus = true; // specifies if the focus is on the
-                           // left directory box
-
-//int height = Console.BufferHeight  = Console.WindowHeight; // one line is used as a buffer 
-//int width  = Console.BufferWidth   = Console.WindowWidth;
-
-/*string[] files = Directory.GetFiles(history_dirs.Last<string>());
-string[] dirs  = Directory.GetDirectories(history_dirs.Last<string>());
-string[] list  = new string[files.Length + dirs.Length]; 
-dirs.CopyTo(list, 0);
-files.CopyTo(list, dirs.Length);*/
-
-
-DotCommander.DirectoryBox db_left  = new DotCommander.DirectoryBox(0,  0, 60, 30, "G:\\Il mio Drive\\Università", left_db_focus);
-DotCommander.DirectoryBox db_right = new DotCommander.DirectoryBox(60, 0, 120, 30, "G:\\Il mio Drive\\Università", !left_db_focus);
+DotCommander.DirectoryBox db_left  = new DotCommander.DirectoryBox(0,  0,  60, 30, Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), left_db_focus);
+DotCommander.DirectoryBox db_right = new DotCommander.DirectoryBox(60, 0, 120, 30, Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), !left_db_focus);
 
 //refresh();
 db_left.draw();
 db_right.draw();
+db_left.set_console_cursor();
 do {
     key_info = Console.ReadKey(true);
     mod = key_info.Modifiers; // alt, shift, ctrl modifiers information alt=1,shift=2,ctrl=4
@@ -55,10 +31,18 @@ do {
             if (key_info.Key.Equals(ConsoleKey.C)) {
                 // go to previous path
                 Environment.Exit(0);
+            } else if (key_info.Key.Equals(ConsoleKey.L)) {
+                if (left_db_focus) db_left.focus_link();
+                else db_right.focus_link();
             } else if (key_info.Key.Equals(ConsoleKey.Tab)) {
                 left_db_focus = !left_db_focus;
                 db_left.switch_focus();
                 db_right.switch_focus();
+                if (left_db_focus) {
+                    db_left.set_console_cursor();
+                } else {
+                    db_right.set_console_cursor();
+                }
             }
         } else if (mod == ConsoleModifiers.Alt) {
             // just alt has been pressed
@@ -95,155 +79,18 @@ do {
         } else if (key_info.Key.Equals(ConsoleKey.Backspace)) {
             if (left_db_focus) db_left.backspace_pressed();
             else db_right.backspace_pressed();
+        } else if (key_info.Key.Equals(ConsoleKey.Home)) {
+            if (left_db_focus) db_left.home_pressed();
+            else db_right.home_pressed();
+        } else if (key_info.Key.Equals(ConsoleKey.End)) {
+            if (left_db_focus) db_left.end_pressed();
+            else db_right.end_pressed();
         } else {
             Console.Beep();
         }
-        //if (index_list == 0) {
-        //    Console.SetCursorPosition(0, 0);
-        //    Console.CursorVisible = false;
-        //}
     }
 } while (true);
 
-//void change_dir(string path) {
-//    history_dirs.Add(path);
-//    //open_directory = path;
-//    index_list = 0;
-//    prev_index_list = 0;
-//    files = Directory.GetFiles(path);
-//    dirs = Directory.GetDirectories(path);
-//    list = new string[files.Length + dirs.Length];
-//    dirs.CopyTo(list, 0);
-//    files.CopyTo(list, dirs.Length);
-//    //refresh();
-//}
-
-//void switch_highlight(int i_from, int i_to) {
-//    /*
-//     * looks where index_from is pointing to and set the color
-//     * based on wheter it is a file or a directory
-//     * this part does not highlight
-//     */
-//    // ------ FROM -------
-//    int cursor_left = 0;
-//    if (i_from >= dirs.Length) {
-//        // index from points a file
-//        set_file_color(false);
-//    } else {
-//        // points to a directory
-//        cursor_left++;
-//        set_directory_color(false);
-//    }
-//    try {
-//        Console.SetCursorPosition(0, i_from + 1);
-//        if (cursor_left > 0) Console.Write("\\");
-//        Console.CursorLeft = cursor_left;
-//        Console.Write(list[i_from].Split("\\").Last<string>());
-//    } catch (Exception e) {
-//        //nothing
-//    }
-//    /*
-//     * looks where index_to is pointing to and set the color
-//     * based on wheter it is a file or a directory
-//     * this part highlights
-//     */
-//    // ------ TO -------
-//    cursor_left = 0;
-//    if (i_to >= dirs.Length) {
-//        // index from points a file
-//        set_file_color(true);
-//    } else {
-//        // points to a dir
-//        cursor_left++;
-//        set_directory_color(true);
-//    }
-//    try {
-//        Console.SetCursorPosition(0, i_to + 1);
-//        if (cursor_left > 0) Console.Write("\\");
-//        Console.CursorLeft = cursor_left;
-//        Console.Write(list[i_to].Split("\\").Last<string>());
-//    } catch (Exception e) {
-//        //nothing
-//    }
-//    Console.CursorVisible = false;
-//    //Console.MoveBufferArea(0, first, Console.BufferWidth, 1, 0, Console.BufferHeight - 1);
-//    //Console.MoveBufferArea(0, second, Console.BufferWidth, 1, 0, first);
-//    //Console.MoveBufferArea(0, Console.BufferHeight - 1, Console.BufferWidth, 1, 0, second);
-//}
-
-//void refresh() {
-//    Console.Title = history_dirs.Last<string>() + " - Dot-Commander";
-//    Console.ResetColor();
-//    Console.Clear();
-//    Console.CursorTop  = 0;
-//    Console.CursorLeft = 0;
-//    Console.BackgroundColor = ConsoleColor.Black; 
-//    Console.ForegroundColor = ConsoleColor.Yellow;
-//    Console.Write("   " + history_dirs.Last<string>() + "   ");
-//    Console.BackgroundColor = ConsoleColor.Black;
-//    Console.ForegroundColor = ConsoleColor.White;
-//    //int index = files.Length % index_list;
-//    int i = 0;
-//    foreach (string dir in dirs) {
-//        if (i == list.Length) {
-//            break;
-//        } else if (i == index_list) {
-//            // this record must be highlighted because the cursor is here
-//            Console.BackgroundColor = ConsoleColor.DarkGray;
-//            Console.ForegroundColor = ConsoleColor.Yellow;
-//        } else {
-//            Console.BackgroundColor = ConsoleColor.Black;
-//            Console.ForegroundColor = ConsoleColor.DarkYellow;
-//        }
-//        split = dir.Split('\\');
-//        Console.CursorLeft = 0;
-//        Console.CursorTop = i + 1;
-//        Console.Write("\\" + split[split.Length - 1]);
-//        i++;
-//    }
-//    foreach (string file in files) {
-//        if (i == list.Length) {
-//            break;
-//        } else if (i == index_list) {
-//            // this record must be highlighted because the cursor is here
-//            Console.BackgroundColor = ConsoleColor.DarkBlue;
-//            Console.ForegroundColor = ConsoleColor.White;
-//        } else {
-//            Console.BackgroundColor = ConsoleColor.Black;
-//            Console.ForegroundColor = ConsoleColor.DarkGreen;
-//        }
-//        split = file.Split('\\');
-//        Console.CursorLeft = 0;
-//        Console.CursorTop = i + 1;
-//        Console.Write("" + split[split.Length - 1]);
-//        i++;
-//    }
-//    Console.SetCursorPosition(0, 0);
-//    Console.CursorVisible = false;
-//}
-
 bool is_alphanumeric(string str) {
     return alphanum_regex.IsMatch(str);
-}
-
-void set_directory_color(bool highlight) {
-    if (highlight) {
-        // this record must be highlighted because the index is here
-        Console.BackgroundColor = ConsoleColor.DarkGray;
-        Console.ForegroundColor = ConsoleColor.Yellow;
-    } else {
-        Console.BackgroundColor = ConsoleColor.Black;
-        Console.ForegroundColor = ConsoleColor.DarkYellow;
-    }
-}
-
-void set_file_color(bool highlight) {
-    if (highlight) {
-        // this record must be highlighted because the cursor is here
-        Console.BackgroundColor = ConsoleColor.DarkBlue;
-        Console.ForegroundColor = ConsoleColor.White;
-    } else {
-        Console.BackgroundColor = ConsoleColor.Black;
-        Console.ForegroundColor = ConsoleColor.DarkGreen;
-    }
 }
