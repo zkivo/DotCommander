@@ -39,8 +39,8 @@ dirs.CopyTo(list, 0);
 files.CopyTo(list, dirs.Length);*/
 
 
-DotCommander.DirectoryBox db_left  = new DotCommander.DirectoryBox(0,  0, 60, 30, "G:\\Il mio Drive\\Università");
-DotCommander.DirectoryBox db_right = new DotCommander.DirectoryBox(60, 0, 120, 30, "G:\\Il mio Drive\\Università");
+DotCommander.DirectoryBox db_left  = new DotCommander.DirectoryBox(0,  0, 60, 30, "G:\\Il mio Drive\\Università", left_db_focus);
+DotCommander.DirectoryBox db_right = new DotCommander.DirectoryBox(60, 0, 120, 30, "G:\\Il mio Drive\\Università", !left_db_focus);
 
 //refresh();
 db_left.draw();
@@ -57,6 +57,8 @@ do {
                 Environment.Exit(0);
             } else if (key_info.Key.Equals(ConsoleKey.Tab)) {
                 left_db_focus = !left_db_focus;
+                db_left.switch_focus();
+                db_right.switch_focus();
             }
         } else if (mod == ConsoleModifiers.Alt) {
             // just alt has been pressed

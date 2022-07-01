@@ -24,8 +24,9 @@ namespace DotCommander {
         private string   blank_line;
         private int cols_of_the_box;
         private int rows_of_the_box;
+        private bool focus;
 
-        public DirectoryBox(int top_left_x, int top_left_y, int bottom_right_x, int bottom_right_y, string path) {
+        public DirectoryBox(int top_left_x, int top_left_y, int bottom_right_x, int bottom_right_y, string path, bool focus) {
             this.top_left.x = top_left_x;
             this.top_left.y = top_left_y;
             this.bottom_right.x = bottom_right_x;
@@ -48,6 +49,7 @@ namespace DotCommander {
             for (int i = 0; i < cols_of_the_box; i++) {
                 this.blank_line += " ";
             }
+            this.focus = focus;
         }
 
         public void enter_pressed() {
@@ -142,7 +144,7 @@ namespace DotCommander {
 
         public void draw() {
             int i = 0;
-
+            (int pos_x, int pos_y) = Console.GetCursorPosition();
             /* drawing */
             Console.SetCursorPosition(top_left.x, top_left.y);
             Console.ResetColor();
@@ -163,14 +165,14 @@ namespace DotCommander {
                     break;
                 }
                 if (File.Exists(element)) {
-                    if (i == this.index_list) {
+                    if (i == this.index_list && this.focus) {
                         // this record must be highlighted because the cursor is here
                         DirectoryBox.set_file_color(true);
                     } else {
                         DirectoryBox.set_file_color(false);
                     }
                 } else if (Directory.Exists(element)) {
-                    if (i == this.index_list) {
+                    if (i == this.index_list && this.focus) {
                         // this record must be highlighted because the cursor is here
                         DirectoryBox.set_directory_color(true);
                     } else {
@@ -191,7 +193,11 @@ namespace DotCommander {
                 }
                 i++;
             }
-            Console.SetCursorPosition(top_left.x, top_left.y);
+            if (this.focus) {
+                Console.SetCursorPosition(top_left.x, top_left.y + index_list);
+            }/* else {
+                Console.SetCursorPosition(pos_x, pos_y);
+            }*/
             Console.CursorVisible = false;
         }
 
@@ -261,6 +267,13 @@ namespace DotCommander {
                 this.list.Add(temp);
             }
             draw();
+        }
+
+        public void switch_focus() {
+            this.focus = !this.focus;
+            clear_directory_box();
+            draw();
+            
         }
 
         private static void set_directory_color(bool highlight) {
