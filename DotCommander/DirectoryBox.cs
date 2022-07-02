@@ -118,7 +118,21 @@ namespace DotCommander {
         }
 
         public void focus_link() {
-
+            try {
+                /* when writing a string on the console
+                 * can happen that the string is bigger of the box,
+                 * if this happens we cut it otherwise we write all the string */
+                Console.SetCursorPosition(top_left.x + 3 + history_dirs.Last<string>().Substring(0, cols_of_the_box - 4).Length,
+                                          top_left.y);
+            } catch (System.ArgumentOutOfRangeException e) {
+                Console.SetCursorPosition(top_left.x + 3 + history_dirs.Last<string>().Length, top_left.y);
+            }
+            Console.CursorVisible = true;
+            do {
+                //ConsoleKeyInfo r = Console.ReadKey();
+                int r = Console.Read();
+                Console.Write(r);
+            } while (true);
         }
 
         void search_string(string str) {
