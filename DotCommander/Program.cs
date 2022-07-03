@@ -20,7 +20,7 @@ DotCommander.DirectoryBox db_right = new DotCommander.DirectoryBox(60, 0, 120, 3
 //refresh();
 db_left.draw();
 db_right.draw();
-db_left.set_console_cursor();
+db_left.reset_console_cursor();
 do {
     key_info = Console.ReadKey(true);
     mod = key_info.Modifiers; // alt, shift, ctrl modifiers information alt=1,shift=2,ctrl=4
@@ -39,9 +39,9 @@ do {
                 db_left.switch_focus();
                 db_right.switch_focus();
                 if (left_db_focus) {
-                    db_left.set_console_cursor();
+                    db_left.reset_console_cursor();
                 } else {
-                    db_right.set_console_cursor();
+                    db_right.reset_console_cursor();
                 }
             }
         } else if (mod == ConsoleModifiers.Alt) {

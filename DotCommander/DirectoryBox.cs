@@ -4,21 +4,19 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Text.RegularExpressions;
 
 namespace DotCommander {
 
     internal class DirectoryBox {
 
         private const float RESET_SEATCH_TIME = 0.8f; //seconds
-        //private static int rows_of_a_page = Console.WindowHeight;
-        //private static int cols_of_a_page = Console.WindowWidth;
 
         private (int x, int y) top_left;     // coordinate of the buffer
         private (int x, int y) bottom_right;
         private List<string> history_dirs;
         private List<string> list;
         private int index_list;
-        //private int prev_index_list;
         private DateTime prev_time;
         private string   search_str;
         private string   blank_line;
@@ -118,21 +116,86 @@ namespace DotCommander {
         }
 
         public void focus_link() {
-            try {
-                /* when writing a string on the console
-                 * can happen that the string is bigger of the box,
-                 * if this happens we cut it otherwise we write all the string */
-                Console.SetCursorPosition(top_left.x + 3 + history_dirs.Last<string>().Substring(0, cols_of_the_box - 4).Length,
-                                          top_left.y);
-            } catch (System.ArgumentOutOfRangeException e) {
-                Console.SetCursorPosition(top_left.x + 3 + history_dirs.Last<string>().Length, top_left.y);
-            }
+            ConsoleKeyInfo key_info;
+            ConsoleModifiers mod;
+            clear_directory_box();
+            Console.ResetColor();
+            Console.ForegroundColor = ConsoleColor.Yellow;
             Console.CursorVisible = true;
+            string path = history_dirs.Last<string>();
             do {
-                //ConsoleKeyInfo r = Console.ReadKey();
-                int r = Console.Read();
-                Console.Write(r);
+                clear_directory_box();
+                //Console.SetCursorPosition(top_left.x, top_left.y);
+                //Console.Write(blank_line);
+                Console.SetCursorPosition(top_left.x, top_left.y);
+                Console.Write("   " + path);
+                list_dirs(path);
+                try {
+                    /* when writing a string on the console
+                     * can happen that the string is bigger of the box,
+                     * if this happens we cut it otherwise we write all the string */
+                    Console.SetCursorPosition(top_left.x + 3 + path.Substring(0, cols_of_the_box - 4).Length,
+                                              top_left.y);
+                } catch (System.ArgumentOutOfRangeException e) {
+                    Console.SetCursorPosition(top_left.x + 3 + path.Length, top_left.y);
+                }
+                key_info = Console.ReadKey(true);
+                mod = key_info.Modifiers; //alt, shift, ctrl modifiers information alt=1,shift=2,ctrl=4
+                if (mod > 0) {
+                    // some modifiers have been pressed
+                    if (key_info.KeyChar == ':') {
+                        path += ":";
+                    } else if (is_alphanumeric(key_info.KeyChar.ToString())) {
+                        path += key_info.KeyChar;
+                    }
+                } else {
+                    if (key_info.Key.Equals(ConsoleKey.Enter)) {
+                        if (Directory.Exists(path)) {
+                            change_dir(path);
+                            break;
+                        } else {
+                            Console.Beep();
+                        }
+                    } else if (is_alphanumeric(key_info.KeyChar.ToString())) {
+                        path += key_info.KeyChar;
+                    } else if (key_info.Key.Equals(ConsoleKey.Backspace)) {
+                        try {
+                            path = path.Substring(0, path.Length - 1);
+                        } catch (ArgumentOutOfRangeException e) {
+                            Console.Beep();
+                        }
+                    } else if (key_info.Key.Equals(ConsoleKey.Escape)) {
+                        break;
+                    } else if (key_info.KeyChar == '\\') {
+                        path += "\\";
+                    } else {
+                        Console.Beep();
+                    }
+                }
             } while (true);
+            clear_directory_box();
+            draw();
+            reset_console_cursor();
+        }
+
+        private void list_dirs(string path) {
+            Console.SetCursorPosition(top_left.x, top_left.y + 1);
+            set_directory_color(false);
+            if (!Directory.Exists(path)) {
+                List<string> lista = path.Split("\\").ToList<string>();
+                try {
+                    lista.RemoveAt(lista.Count - 1);
+                    path = "";
+                    foreach (string s in lista) {
+                        path += s + "\\";
+                    }
+                } catch (ArgumentOutOfRangeException e) {
+
+                }
+            }
+            foreach (string element in Directory.GetDirectories(path)) {
+                Console.WriteLine("\\" + element.Split("\\").Last<string>());
+            }
         }
 
         void search_string(string str) {
@@ -303,12 +366,18 @@ namespace DotCommander {
             draw();
         }
 
-        public void set_console_cursor() {
+        public void reset_console_cursor() {
             if (index_list > 0) {
                 Console.SetCursorPosition(top_left.x, top_left.y + index_list + 1);
             } else {
                 Console.SetCursorPosition(top_left.x, top_left.y);
             }
+            Console.CursorVisible = false;
+        }
+
+        public static bool is_alphanumeric(string str) {
+            Regex alphanum_regex = new Regex(@"^[a-zA-Z0-9\s,]*$");
+            return alphanum_regex.IsMatch(str);
         }
 
         private static void set_directory_color(bool highlight) {
@@ -334,4 +403,5 @@ namespace DotCommander {
         }
 
     }
+
 }
