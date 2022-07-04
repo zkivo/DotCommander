@@ -125,9 +125,9 @@ namespace DotCommander {
             string path = history_dirs.Last<string>();
             do {
                 clear_directory_box();
-                //Console.SetCursorPosition(top_left.x, top_left.y);
-                //Console.Write(blank_line);
                 Console.SetCursorPosition(top_left.x, top_left.y);
+                Console.ResetColor();
+                Console.ForegroundColor = ConsoleColor.Yellow;
                 Console.Write("   " + path);
                 list_dirs(path);
                 try {
@@ -143,10 +143,28 @@ namespace DotCommander {
                 mod = key_info.Modifiers; //alt, shift, ctrl modifiers information alt=1,shift=2,ctrl=4
                 if (mod > 0) {
                     // some modifiers have been pressed
-                    if (key_info.KeyChar == ':') {
-                        path += ":";
-                    } else if (is_alphanumeric(key_info.KeyChar.ToString())) {
-                        path += key_info.KeyChar;
+                    if (mod == ConsoleModifiers.Control) {
+                        if (key_info.Key.Equals(ConsoleKey.Backspace)) {
+                            List<string> lista = path.Split("\\").ToList<string>();
+                            try {
+                                if (lista.Last<string>().Equals("")) {
+                                    lista.RemoveAt(lista.Count - 1);
+                                }
+                                lista.RemoveAt(lista.Count - 1);
+                                path = "";
+                                foreach (string s in lista) {
+                                    path += s + "\\";
+                                }
+                            } catch (ArgumentOutOfRangeException e) {
+                                Console.Beep();
+                            }
+                        }
+                    } else if (mod == ConsoleModifiers.Shift) {
+                        if (key_info.KeyChar == ':') {
+                            path += ":";
+                        } else if (is_alphanumeric(key_info.KeyChar.ToString())) {
+                            path += key_info.KeyChar;
+                        }
                     }
                 } else {
                     if (key_info.Key.Equals(ConsoleKey.Enter)) {
@@ -156,6 +174,8 @@ namespace DotCommander {
                         } else {
                             Console.Beep();
                         }
+                    } else if (key_info.Key.Equals(ConsoleKey.Tab)) {
+                        path = complete_path(path);
                     } else if (is_alphanumeric(key_info.KeyChar.ToString())) {
                         path += key_info.KeyChar;
                     } else if (key_info.Key.Equals(ConsoleKey.Backspace)) {
@@ -178,6 +198,51 @@ namespace DotCommander {
             reset_console_cursor();
         }
 
+        public static string complete_path(string path) {
+            string last = "";
+            bool found = false;
+            if (!Directory.Exists(path)) {
+                List<string> lista = path.Split("\\").ToList<string>();
+                try {
+                    last = lista.Last<string>();
+                    lista.RemoveAt(lista.Count - 1);
+                    path = "";
+                    foreach (string s in lista) {
+                        path += s + "\\";
+                    }
+                } catch (ArgumentOutOfRangeException e) {
+                    //dunno
+                }
+                try {
+                    foreach (string element in Directory.GetDirectories(path)) {
+                        if (0 == element.Split("\\").Last<string>().IndexOf(last, StringComparison.OrdinalIgnoreCase)) {
+                            path += element.Split("\\").Last<string>() + "\\";
+                            found = true;
+                            break;
+                        }
+                    }
+                } catch (ArgumentException e) {
+                    foreach (string element in Directory.GetLogicalDrives()) {
+                        if (0 == element.Split("\\").Last<string>().IndexOf(last, StringComparison.OrdinalIgnoreCase)) {
+                            path += element.Split("\\").Last<string>() + "\\";
+                            found = true;
+                            break;
+                        }
+                    }
+                } catch (UnauthorizedAccessException e) {
+                    Console.Beep();
+                }
+            } else {
+                if (path.Last<char>() != '\\') {
+                    path += '\\';
+                }
+            }
+            if (!found) {
+                path += last;
+            }
+            return path;
+        }
+
         private void list_dirs(string path) {
             Console.SetCursorPosition(top_left.x, top_left.y + 1);
             set_directory_color(false);
@@ -190,11 +255,19 @@ namespace DotCommander {
                         path += s + "\\";
                     }
                 } catch (ArgumentOutOfRangeException e) {
-
+                    //dunno
                 }
             }
-            foreach (string element in Directory.GetDirectories(path)) {
-                Console.WriteLine("\\" + element.Split("\\").Last<string>());
+            try {
+                foreach (string element in Directory.GetDirectories(path)) {
+                    Console.WriteLine("\\" + element.Split("\\").Last<string>());
+                }
+            } catch (ArgumentException e) {
+                foreach (string element in Directory.GetLogicalDrives()) {
+                    Console.WriteLine(element);
+                }
+            } catch (UnauthorizedAccessException e) {
+                Console.Beep();
             }
         }
 
