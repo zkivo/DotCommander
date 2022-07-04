@@ -244,7 +244,6 @@ namespace DotCommander {
         }
 
         private void list_dirs(string path) {
-            Console.SetCursorPosition(top_left.x, top_left.y + 1);
             set_directory_color(false);
             if (!Directory.Exists(path)) {
                 List<string> lista = path.Split("\\").ToList<string>();
@@ -258,13 +257,17 @@ namespace DotCommander {
                     //dunno
                 }
             }
+            int i = 1;
             try {
                 foreach (string element in Directory.GetDirectories(path)) {
-                    Console.WriteLine("\\" + element.Split("\\").Last<string>());
+                    Console.SetCursorPosition(top_left.x, top_left.y + i++);
+                    Console.Write("\\" + element.Split("\\").Last<string>());
                 }
             } catch (ArgumentException e) {
+                i = 1;
                 foreach (string element in Directory.GetLogicalDrives()) {
-                    Console.WriteLine(element);
+                    Console.SetCursorPosition(top_left.x, top_left.y + i++);
+                    Console.Write(element);
                 }
             } catch (UnauthorizedAccessException e) {
                 Console.Beep();
@@ -420,11 +423,18 @@ namespace DotCommander {
         }
 
         public void change_dir(string path) {
+            string[] dirs; 
+            try {
+                dirs = Directory.GetDirectories(path);
+            } catch (UnauthorizedAccessException e) {
+                Console.Beep();
+                return;
+            }
             history_dirs.Add(path);
             index_list = 0;
             clear_directory_box();
             list.Clear();
-            foreach (string temp in Directory.GetDirectories(path)) {
+            foreach (string temp in dirs) {
                 this.list.Add(temp);
             }
             foreach (string temp in Directory.GetFiles(path)) {
