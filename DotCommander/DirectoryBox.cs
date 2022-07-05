@@ -56,16 +56,17 @@ namespace DotCommander {
         public void reset_config_file() {
             XmlSerializer serializer = new XmlSerializer(typeof(string));
             XmlSerializerNamespaces ser_ns = new XmlSerializerNamespaces();
-            ser_ns.Add(id, null);
+            ser_ns.Add(id, id);
 
-            FileStream file = null;
+            StreamWriter file = null;
             
             string path = Environment.CurrentDirectory + "\\config.xml";
-            //if (!File.Exists(path)) {
-            //    file = File.Create(Environment.CurrentDirectory + "\\config.xml")
-            //} else {
-                file = File.Open(Environment.CurrentDirectory + "\\config.xml", FileMode.OpenOrCreate, FileAccess.ReadWrite);
-            //}
+            if (!File.Exists(path)) {
+//                file = File.Create(Environment.CurrentDirectory + "\\config.xml")
+                //file = File.Open(Environment.CurrentDirectory + "\\config.xml", FileMode.OpenOrCreate, FileAccess.ReadWrite);
+            } else {
+                file = File.AppendText(path);
+            }
 
             serializer.Serialize(file, history_dirs.Last<string>(), ser_ns);
             file.Close();
