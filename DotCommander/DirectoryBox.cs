@@ -9,13 +9,14 @@ using System.Xml.Serialization;
 
 namespace DotCommander {
 
-    internal class DirectoryBox {
+    
+    public class DirectoryBox {
 
         private const float RESET_SEATCH_TIME = 0.8f; //seconds
 
         private (int x, int y) top_left;     // coordinate of the buffer
         private (int x, int y) bottom_right;
-        private List<string> history_dirs;
+        public  List<string> history_dirs;
         private List<string> list;
         private int index_list;
         private DateTime prev_time;
@@ -26,13 +27,21 @@ namespace DotCommander {
         private int rows_of_the_box;
         private bool focus;
 
-        public DirectoryBox(int top_left_x, int top_left_y, int bottom_right_x, int bottom_right_y, string path, bool focus, string id) {
+        public DirectoryBox() { }
+
+        public DirectoryBox(int top_left_x, int top_left_y, int bottom_right_x, int bottom_right_y, bool focus, string id) {
+            string path;
+            this.id = id;
+            read_config_file();
+            if (this.history_dirs == null) {
+                this.history_dirs = new List<string>();
+                this.history_dirs.Add(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile));
+            }
+            path = history_dirs[history_dirs.Count - 1];
             this.top_left.x = top_left_x;
             this.top_left.y = top_left_y;
             this.bottom_right.x = bottom_right_x;
             this.bottom_right.y = bottom_right_y;
-            this.history_dirs = new List<string>();
-            this.history_dirs.Add(path);
             this.list = new List<string>();
             foreach (string temp in Directory.GetDirectories(path)) {
                 this.list.Add(temp);
@@ -50,25 +59,27 @@ namespace DotCommander {
                 this.blank_line += " ";
             }
             this.focus = focus;
-            this.id = id;
+        }
+
+        public void read_config_file() {
+            try {
+                XmlSerializer serializer = new XmlSerializer(typeof(DirectoryBox));
+                StreamReader file = new StreamReader(Environment.CurrentDirectory + "\\" + id + "DirectoryBox.config");
+                DirectoryBox overview = (DirectoryBox)serializer.Deserialize(file);
+                this.history_dirs = new List<string>(overview.history_dirs);
+                file.Close();
+            } catch (FileNotFoundException e) {
+
+            }
         }
 
         public void reset_config_file() {
-            XmlSerializer serializer = new XmlSerializer(typeof(string));
-            XmlSerializerNamespaces ser_ns = new XmlSerializerNamespaces();
-            ser_ns.Add(id, id);
-
-            StreamWriter file = null;
+            XmlSerializer serializer = new XmlSerializer(typeof(DirectoryBox));
             
-            string path = Environment.CurrentDirectory + "\\config.xml";
-            if (!File.Exists(path)) {
-//                file = File.Create(Environment.CurrentDirectory + "\\config.xml")
-                //file = File.Open(Environment.CurrentDirectory + "\\config.xml", FileMode.OpenOrCreate, FileAccess.ReadWrite);
-            } else {
-                file = File.AppendText(path);
-            }
+            string path = Environment.CurrentDirectory + "\\" + id + "DirectoryBox.config";
+            FileStream file = File.Create(path);
 
-            serializer.Serialize(file, history_dirs.Last<string>(), ser_ns);
+            serializer.Serialize(file, this);
             file.Close();
         }
 
