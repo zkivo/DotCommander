@@ -14,8 +14,8 @@ Console.TreatControlCAsInput = true; // also treats the other modifiers as input
 
 bool left_db_focus = true; // specifies if the focus is on the left box
 
-DotCommander.DirectoryBox db_left  = new DotCommander.DirectoryBox(0,  0,  60, 30, Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), left_db_focus);
-DotCommander.DirectoryBox db_right = new DotCommander.DirectoryBox(60, 0, 120, 30, Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), !left_db_focus);
+DotCommander.DirectoryBox db_left  = new DotCommander.DirectoryBox(0,  0,  60, 30, Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),  left_db_focus, "left_");
+DotCommander.DirectoryBox db_right = new DotCommander.DirectoryBox(60, 0, 120, 30, Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), !left_db_focus, "right_");
 
 //refresh();
 db_left.draw();
@@ -29,7 +29,8 @@ do {
         if (mod == ConsoleModifiers.Control) {
             //just ctrl has been pressed
             if (key_info.Key.Equals(ConsoleKey.C)) {
-                // go to previous path
+                db_left.reset_config_file();
+                db_right.reset_config_file();
                 Environment.Exit(0);
             } else if (key_info.Key.Equals(ConsoleKey.L)) {
                 if (left_db_focus) db_left.focus_link();
@@ -43,6 +44,9 @@ do {
                 } else {
                     db_right.reset_console_cursor();
                 }
+            } else if (key_info.Key.Equals(ConsoleKey.S)) {
+                db_left.reset_config_file();
+                db_right.reset_config_file();
             }
         } else if (mod == ConsoleModifiers.Alt) {
             // just alt has been pressed

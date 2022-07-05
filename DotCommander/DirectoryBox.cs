@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
+using System.Xml.Serialization;
 
 namespace DotCommander {
 
@@ -20,11 +21,12 @@ namespace DotCommander {
         private DateTime prev_time;
         private string   search_str;
         private string   blank_line;
+        private string   id;
         private int cols_of_the_box;
         private int rows_of_the_box;
         private bool focus;
 
-        public DirectoryBox(int top_left_x, int top_left_y, int bottom_right_x, int bottom_right_y, string path, bool focus) {
+        public DirectoryBox(int top_left_x, int top_left_y, int bottom_right_x, int bottom_right_y, string path, bool focus, string id) {
             this.top_left.x = top_left_x;
             this.top_left.y = top_left_y;
             this.bottom_right.x = bottom_right_x;
@@ -48,11 +50,33 @@ namespace DotCommander {
                 this.blank_line += " ";
             }
             this.focus = focus;
+            this.id = id;
+        }
+
+        public void reset_config_file() {
+            XmlSerializer serializer = new XmlSerializer(typeof(string));
+            XmlSerializerNamespaces ser_ns = new XmlSerializerNamespaces();
+            ser_ns.Add(id, null);
+
+            FileStream file = null;
+            
+            string path = Environment.CurrentDirectory + "\\config.xml";
+            //if (!File.Exists(path)) {
+            //    file = File.Create(Environment.CurrentDirectory + "\\config.xml")
+            //} else {
+                file = File.Open(Environment.CurrentDirectory + "\\config.xml", FileMode.OpenOrCreate, FileAccess.ReadWrite);
+            //}
+
+            serializer.Serialize(file, history_dirs.Last<string>(), ser_ns);
+            file.Close();
         }
 
         public void enter_pressed() {
             if (File.Exists(list[index_list])) {
-                Process.Start(new ProcessStartInfo(list[index_list]) { UseShellExecute = true });
+                Process.Start(new ProcessStartInfo(list[index_list]) {  UseShellExecute = true//,
+                                                                        //RedirectStandardError = true,
+                                                                        //RedirectStandardOutput = true 
+                                                                     });
             } else if (Directory.Exists(list[index_list])) {
                 change_dir(list[index_list]);
             } else {
@@ -241,7 +265,7 @@ namespace DotCommander {
                 path += last;
             }
             return path;
-        }
+        } 
 
         private void list_dirs(string path) {
             set_directory_color(false);
