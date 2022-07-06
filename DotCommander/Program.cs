@@ -29,8 +29,6 @@ do {
         if (mod == ConsoleModifiers.Control) {
             //just ctrl has been pressed
             if (key_info.Key.Equals(ConsoleKey.C)) {
-                db_left.reset_config_file();
-                db_right.reset_config_file();
                 Environment.Exit(0);
             } else if (key_info.Key.Equals(ConsoleKey.L)) {
                 if (left_db_focus) db_left.focus_link();
@@ -47,6 +45,36 @@ do {
             } else if (key_info.Key.Equals(ConsoleKey.S)) {
                 db_left.reset_config_file();
                 db_right.reset_config_file();
+            } else if (key_info.Key.Equals(ConsoleKey.M)) {
+                string temp;
+                string filename;
+                try {
+                    if (left_db_focus) {
+                        temp = db_left.get_path_of_indexed_file();
+                        filename = temp.Split("\\").Last<string>();
+                        File.Move(temp, db_right.get_path_open_directory() + "\\" + filename);
+                        db_left.decrese_index_list();
+                    } else {
+                        temp = db_right.get_path_of_indexed_file();
+                        filename = temp.Split("\\").Last<string>();
+                        File.Move(temp, db_left.get_path_open_directory() + "\\" + filename);
+                        db_right.decrese_index_list();
+                    }
+                    db_left.clear_directory_box();
+                    db_right.clear_directory_box();
+                    db_left.refresh_list();
+                    db_right.refresh_list();
+                    db_left.draw();
+                    db_right.draw();
+                    if (left_db_focus) {
+                        db_left.reset_console_cursor();
+                    } else {
+                        db_right.reset_console_cursor();
+                    }
+
+                } catch (Exception ex) {
+                    Console.Beep();
+                }
             }
         } else if (mod == ConsoleModifiers.Alt) {
             // just alt has been pressed

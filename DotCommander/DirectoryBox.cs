@@ -61,6 +61,29 @@ namespace DotCommander {
             this.focus = focus;
         }
 
+        public void refresh_list() {
+            this.list.Clear();
+            foreach (string temp in Directory.GetDirectories(history_dirs.Last<string>())) {
+                this.list.Add(temp);
+            }
+            foreach (string temp in Directory.GetFiles(history_dirs.Last<string>())) {
+                this.list.Add(temp);
+            }
+        }
+
+        public string get_path_of_indexed_file() {
+            return list[index_list];    
+        }
+
+        public string get_path_open_directory() {
+            return history_dirs.Last<string>();
+        }
+
+        public void decrese_index_list() {
+            index_list--;
+            if (index_list < 0) { index_list = 0; }
+        }
+
         public void read_config_file() {
             try {
                 XmlSerializer serializer = new XmlSerializer(typeof(DirectoryBox));
