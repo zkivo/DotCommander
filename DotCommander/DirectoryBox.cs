@@ -184,13 +184,12 @@ namespace DotCommander {
         public void focus_link() {
             ConsoleKeyInfo key_info;
             ConsoleModifiers mod;
-            clear_directory_box();
-            Console.ResetColor();
-            Console.ForegroundColor = ConsoleColor.Yellow;
             Console.CursorVisible = true;
             string path = history_dirs.Last<string>();
+            string prev_path = path;
             do {
-                clear_directory_box();
+                clear_directory_box(prev_path);
+                prev_path = path;
                 Console.SetCursorPosition(top_left.x, top_left.y);
                 Console.ResetColor();
                 Console.ForegroundColor = ConsoleColor.Yellow;
@@ -372,6 +371,26 @@ namespace DotCommander {
                 Console.SetCursorPosition(top_left.x, top_left.y + i);
                 Console.Write(blank_line);
                 i++;
+            }
+            Console.SetCursorPosition(top_left.x, top_left.y + i);
+            Console.Write(blank_line);
+        }
+
+        public void clear_directory_box(string dir_path) {
+            Console.ResetColor();
+            int i = 0;
+            try {
+                foreach (string element in Directory.GetDirectories(dir_path)) {
+                    Console.SetCursorPosition(top_left.x, top_left.y + i);
+                    Console.Write(blank_line);
+                    i++;
+                }
+            } catch (Exception e) {
+                foreach (string element in Directory.GetLogicalDrives()) {
+                    Console.SetCursorPosition(top_left.x, top_left.y + i);
+                    Console.Write(blank_line);
+                    i++;
+                }
             }
             Console.SetCursorPosition(top_left.x, top_left.y + i);
             Console.Write(blank_line);
