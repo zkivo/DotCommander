@@ -9,7 +9,6 @@ using System.Xml.Serialization;
 
 namespace DotCommander {
 
-    
     public class DirectoryBox {
 
         private const float RESET_SEATCH_TIME = 0.8f; //seconds
@@ -116,6 +115,14 @@ namespace DotCommander {
                 change_dir(list[index_list]);
             } else {
                 Console.Write("ERROR: 6364");
+            }
+        }
+
+        public void delete_pressed() {
+            try {
+                File.Delete(list[index_list]);
+            } catch (Exception e) {
+                Console.Beep();
             }
         }
 
@@ -282,8 +289,8 @@ namespace DotCommander {
                     }
                 } catch (ArgumentException e) {
                     foreach (string element in Directory.GetLogicalDrives()) {
-                        if (0 == element.Split("\\").Last<string>().IndexOf(last, StringComparison.OrdinalIgnoreCase)) {
-                            path += element.Split("\\").Last<string>() + "\\";
+                        if (0 == element.IndexOf(last, StringComparison.OrdinalIgnoreCase)) {
+                            path = element;
                             found = true;
                             break;
                         }
