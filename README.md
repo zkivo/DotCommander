@@ -29,6 +29,6 @@ Ctrl + Tab   : switch folder.
 A . . . Z    : while typing the commander matchs the file/dir with the input.
 
 ## Why this project
-While i was studying with my laptop i had the need of a file manager that could be easly used through the keyboard. I need to access fastly the file and navigate through the folders with just my fingers, witout using the trackpad because was too slow and decreased my studying flow (i usually use only shortcut whenever i can).
+While i was studying with my laptop i had the need of a file manager that could be easly used through the keyboard. I needed to access fastly the file and navigate through the folders with just my fingers, without using the trackpad because was too slow and decreased my studying flow (i usually use only shortcut whenever i can).
 
 I created this project for the reason explained above hoping someone could find it interesting and improving the software with these ideas in mind.
