@@ -1,5 +1,5 @@
 # DotCommander
-This is an Open Source console file manager for Windows.
+This is an Open Source console file manager for Windows under MIT license.
 
 It only uses .NET6 framework and there is not any terminal emulator. The project is just a window console program.
 
