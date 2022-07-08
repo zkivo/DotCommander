@@ -393,7 +393,6 @@ namespace DotCommander {
             Console.ResetColor();
 
             foreach (string element in this.list) {
-                Console.SetCursorPosition(top_left.x, top_left.y + i + 1);
                 if (i == list.Count) {
                     break;
                 }
@@ -404,6 +403,8 @@ namespace DotCommander {
                     } else {
                         DirectoryBox.set_file_color(false);
                     }
+                    Console.SetCursorPosition(bottom_right.x - 12, top_left.y + i + 1);
+                    Console.Write(File.GetLastWriteTime(element).ToString("d"));
                 } else if (Directory.Exists(element)) {
                     if (i == this.index_list && this.focus) {
                         // this record must be highlighted because the cursor is here
@@ -411,10 +412,15 @@ namespace DotCommander {
                     } else {
                         DirectoryBox.set_directory_color(false);
                     }
-                    Console.Write("\\");
+                    Console.SetCursorPosition(bottom_right.x - 12, top_left.y + i + 1);
+                    Console.Write(Directory.GetLastWriteTime(element).ToString("d"));
                 } else {
                     Console.Write("ERROR: 3756");
                     return;
+                }
+                Console.SetCursorPosition(top_left.x, top_left.y + i + 1);
+                if (Directory.Exists(element)) {
+                    Console.Write("\\");
                 }
                 try {
                     /* when writing a string on the console
@@ -440,15 +446,21 @@ namespace DotCommander {
              */
             
             // ------ FROM -------
-            
-            Console.SetCursorPosition(top_left.x, top_left.y + i_from + 1);
+           
             if (File.Exists(list[i_from])) {
                 set_file_color(false);
+                Console.SetCursorPosition(bottom_right.x - 12, top_left.y + i_from + 1);
+                Console.Write(File.GetLastWriteTime(list[i_from]).ToString("d"));
             } else if (Directory.Exists(list[i_from])) {
                 set_directory_color(false);
-                Console.Write("\\");
+                Console.SetCursorPosition(bottom_right.x - 12, top_left.y + i_from + 1);
+                Console.Write(Directory.GetLastWriteTime(list[i_from]).ToString("d"));
             } else {
                 Console.WriteLine("ERROR: 6254");
+            }
+            Console.SetCursorPosition(top_left.x, top_left.y + i_from + 1);
+            if (Directory.Exists(list[i_from])) {
+                Console.Write("\\");
             }
             try {
                 /* when writing a string on the console
@@ -461,14 +473,20 @@ namespace DotCommander {
 
             // ------ TO -------
 
-            Console.SetCursorPosition(top_left.x, top_left.y + i_to + 1);
             if (File.Exists(list[i_to])) {
                 set_file_color(true);
+                Console.SetCursorPosition(bottom_right.x - 12, top_left.y + i_to + 1);
+                Console.Write(File.GetLastWriteTime(list[i_to]).ToString("d"));
             } else if (Directory.Exists(list[i_to])) {
                 set_directory_color(true);
-                Console.Write("\\");
+                Console.SetCursorPosition(bottom_right.x - 12, top_left.y + i_to + 1);
+                Console.Write(Directory.GetLastWriteTime(list[i_to]).ToString("d"));
             } else {
-                Console.WriteLine("ERROR: 6255");
+                Console.WriteLine("ERROR: 6254");
+            }
+            Console.SetCursorPosition(top_left.x, top_left.y + i_to + 1);
+            if (Directory.Exists(list[i_to])) {
+                Console.Write("\\");
             }
             try {
                 /* when writing a string on the console
