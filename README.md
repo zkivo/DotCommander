@@ -26,6 +26,8 @@ Ctrl + S     : save as startup folders.
 
 Ctrl + Tab   : switch folder.
 
+A . . . Z    : while typing the commander matchs the file/dir with the input.
+
 ## Why this project
 While i was studying with my laptop i had the need of a file manager that could be easly used through the keyboard. I need to access fastly the file and navigate through the folders with just my fingers, witout using the trackpad because was too slow and decreased my studying flow (i usually use only shortcut whenever i can).
 
