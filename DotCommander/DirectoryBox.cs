@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Diagnostics;
 using System.Text.RegularExpressions;
 using System.Xml.Serialization;
 
@@ -87,7 +82,7 @@ namespace DotCommander {
             try {
                 XmlSerializer serializer = new XmlSerializer(typeof(DirectoryBox));
                 StreamReader file = new StreamReader(Environment.CurrentDirectory + "\\" + id + "DirectoryBox.config");
-                DirectoryBox overview = (DirectoryBox)serializer.Deserialize(file);
+                DirectoryBox overview = (DirectoryBox) serializer.Deserialize(file);
                 this.history_dirs = new List<string>(overview.history_dirs);
                 file.Close();
             } catch (FileNotFoundException e) {
@@ -107,10 +102,7 @@ namespace DotCommander {
 
         public void enter_pressed() {
             if (File.Exists(list[index_list])) {
-                Process.Start(new ProcessStartInfo(list[index_list]) {  UseShellExecute = true//,
-                                                                        //RedirectStandardError = true,
-                                                                        //RedirectStandardOutput = true 
-                                                                     });
+                Process.Start(new ProcessStartInfo(list[index_list]) {  UseShellExecute = true } );
             } else if (Directory.Exists(list[index_list])) {
                 change_dir(list[index_list]);
             } else {
