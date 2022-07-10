@@ -5,8 +5,7 @@
 // It creates two DirectoryPage objects, one that rapresent the left page
 // and the other that rapresents the right one.
 // 
-// Then: listen for keyboard input and operates; calling DirectoryPage
-// 
+// Then listen for keyboard input and operates, calling DirectoryPage
 // methods when necessary.
 //
 
