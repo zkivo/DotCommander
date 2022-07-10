@@ -1,4 +1,16 @@
-﻿using System.Text.RegularExpressions;
+﻿// 2022, Marco Schivo
+//
+// This is the main program.
+// 
+// It creates two DirectoryPage objects, one that rapresent the left page
+// and the other that rapresents the right one.
+// 
+// Then: listen for keyboard input and operates; calling DirectoryPage
+// 
+// methods when necessary.
+//
+
+using System.Text.RegularExpressions;
 
 ConsoleKeyInfo   key_info;
 ConsoleModifiers mod;
@@ -6,11 +18,11 @@ ConsoleModifiers mod;
 Regex alphanum_regex = new Regex(@"^[a-zA-Z0-9\s,]*$");
 Console.TreatControlCAsInput = true; // also treats the other modifiers as input
 
-bool   left_db_focus  = true; // specifies if the focus is on the left box
+bool   left_db_focus  = true; // specifies if the focus is on the left page
 string copy_file_path = "";
 
-DotCommander.DirectoryBox db_left  = new DotCommander.DirectoryBox(0,  0,  60, 30,  left_db_focus, "left_");
-DotCommander.DirectoryBox db_right = new DotCommander.DirectoryBox(60, 0, 120, 30, !left_db_focus, "right_");
+DotCommander.DirectoryPage db_left  = new DotCommander.DirectoryPage(0,  0,  60, 30,  left_db_focus, "left_");
+DotCommander.DirectoryPage db_right = new DotCommander.DirectoryPage(60, 0, 120, 30, !left_db_focus, "right_");
 
 db_left.draw();
 db_right.draw();
@@ -40,8 +52,8 @@ do {
                             filename = copy_file_path.Split("\\").Last<string>();
                             File.Copy(copy_file_path, db_right.get_path_open_directory() + "\\" + filename);
                         }
-                        db_left.clear_directory_box();
-                        db_right.clear_directory_box();
+                        db_left.clear_directory_page();
+                        db_right.clear_directory_page();
                         db_left.refresh_list();
                         db_right.refresh_list();
                         db_left.draw();
@@ -85,8 +97,8 @@ do {
                         File.Move(temp, db_left.get_path_open_directory() + "\\" + filename);
                         db_right.decrese_index_list();
                     }
-                    db_left.clear_directory_box();
-                    db_right.clear_directory_box();
+                    db_left.clear_directory_page();
+                    db_right.clear_directory_page();
                     db_left.refresh_list();
                     db_right.refresh_list();
                     db_left.draw();
@@ -119,13 +131,13 @@ do {
         } else if (key_info.Key.Equals(ConsoleKey.Delete)) {
             if (left_db_focus) {
                 db_left.delete_pressed();
-                db_left.clear_directory_box();
+                db_left.clear_directory_page();
                 db_left.refresh_list();
                 db_left.draw();
                 db_left.decrese_index_list();
             } else {
                 db_right.delete_pressed();
-                db_right.clear_directory_box();
+                db_right.clear_directory_page();
                 db_right.refresh_list();
                 db_right.draw();
                 db_right.decrese_index_list();

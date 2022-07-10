@@ -1,10 +1,18 @@
-﻿using System.Diagnostics;
+﻿// 2022, Marco Schivo
+
+using System.Diagnostics;
 using System.Text.RegularExpressions;
 using System.Xml.Serialization;
 
 namespace DotCommander {
 
-    public class DirectoryBox {
+    /// <summary>
+    /// This class rapresents a viewing directory on the console.
+    /// It is called page because it lists all the dirs and file as a long
+    /// list, which looks like a page; where width it is managable but not
+    /// height.
+    /// </summary>
+    public class DirectoryPage {
 
         private const float RESET_SEATCH_TIME = 0.8f; //seconds
 
@@ -17,13 +25,13 @@ namespace DotCommander {
         private string   search_str;
         private string   blank_line;
         private string   id;
-        private int cols_of_the_box;
-        private int rows_of_the_box;
+        private int cols_of_the_page;
+        private int rows_of_the_page;
         private bool focus;
 
-        public DirectoryBox() { }
+        public DirectoryPage() { }
 
-        public DirectoryBox(int top_left_x, int top_left_y, int bottom_right_x, int bottom_right_y, bool focus, string id) {
+        public DirectoryPage(int top_left_x, int top_left_y, int bottom_right_x, int bottom_right_y, bool focus, string id) {
             string path;
             this.id = id;
             read_config_file();
@@ -47,9 +55,9 @@ namespace DotCommander {
             this.prev_time  = DateTime.Now;
             this.search_str = "";
             this.blank_line = "";
-            this.rows_of_the_box = bottom_right_y - top_left_y;
-            this.cols_of_the_box = bottom_right_x - top_left_x;
-            for (int i = 0; i < cols_of_the_box; i++) {
+            this.rows_of_the_page = bottom_right_y - top_left_y;
+            this.cols_of_the_page = bottom_right_x - top_left_x;
+            for (int i = 0; i < cols_of_the_page; i++) {
                 this.blank_line += " ";
             }
             this.focus = focus;
@@ -80,9 +88,9 @@ namespace DotCommander {
 
         public void read_config_file() {
             try {
-                XmlSerializer serializer = new XmlSerializer(typeof(DirectoryBox));
-                StreamReader file = new StreamReader(Environment.CurrentDirectory + "\\" + id + "DirectoryBox.config");
-                DirectoryBox overview = (DirectoryBox) serializer.Deserialize(file);
+                XmlSerializer serializer = new XmlSerializer(typeof(DirectoryPage));
+                StreamReader file = new StreamReader(Environment.CurrentDirectory + "\\" + id + "DirectoryPage.config");
+                DirectoryPage overview = (DirectoryPage) serializer.Deserialize(file);
                 this.history_dirs = new List<string>(overview.history_dirs);
                 file.Close();
             } catch (FileNotFoundException e) {
@@ -91,9 +99,9 @@ namespace DotCommander {
         }
 
         public void reset_config_file() {
-            XmlSerializer serializer = new XmlSerializer(typeof(DirectoryBox));
+            XmlSerializer serializer = new XmlSerializer(typeof(DirectoryPage));
             
-            string path = Environment.CurrentDirectory + "\\" + id + "DirectoryBox.config";
+            string path = Environment.CurrentDirectory + "\\" + id + "DirectoryPage.config";
             FileStream file = File.Create(path);
 
             serializer.Serialize(file, this);
@@ -134,15 +142,15 @@ namespace DotCommander {
 
         public void page_down_pressed() {
             int prev_index_list = index_list;
-            if (index_list + rows_of_the_box >= list.Count) index_list = list.Count - 1;
-            else index_list += rows_of_the_box;
+            if (index_list + rows_of_the_page >= list.Count) index_list = list.Count - 1;
+            else index_list += rows_of_the_page;
             switch_highlight(prev_index_list, index_list);
         }
 
         public void page_up_pressed() {
             int prev_index_list = index_list;
-            if (index_list - rows_of_the_box < 0) index_list = 0;
-            else index_list -= rows_of_the_box;
+            if (index_list - rows_of_the_page < 0) index_list = 0;
+            else index_list -= rows_of_the_page;
             switch_highlight(prev_index_list, index_list);
         }
 
@@ -176,11 +184,11 @@ namespace DotCommander {
         public void focus_link() {
             ConsoleKeyInfo key_info;
             ConsoleModifiers mod;
-            clear_directory_box();
+            clear_directory_page();
             Console.CursorVisible = true;
             string path = history_dirs.Last<string>();
             do {
-                clear_directory_box();
+                clear_directory_page();
                 Console.SetCursorPosition(top_left.x, top_left.y);
                 Console.ResetColor();
                 Console.ForegroundColor = ConsoleColor.Yellow;
@@ -188,9 +196,9 @@ namespace DotCommander {
                 list_dirs(path);
                 try {
                     /* when writing a string on the console
-                     * can happen that the string is bigger of the box,
+                     * can happen that the string is bigger of the page,
                      * if this happens we cut it otherwise we write all the string */
-                    Console.SetCursorPosition(top_left.x + 3 + path.Substring(0, cols_of_the_box - 4).Length,
+                    Console.SetCursorPosition(top_left.x + 3 + path.Substring(0, cols_of_the_page - 4).Length,
                                               top_left.y);
                 } catch (System.ArgumentOutOfRangeException e) {
                     Console.SetCursorPosition(top_left.x + 3 + path.Length, top_left.y);
@@ -249,7 +257,7 @@ namespace DotCommander {
                     }
                 }
             } while (true);
-            clear_directory_box();
+            clear_directory_page();
             draw();
             reset_console_cursor();
         }
@@ -355,7 +363,7 @@ namespace DotCommander {
             prev_time = DateTime.Now;
         }
 
-        public void clear_directory_box() {
+        public void clear_directory_page() {
             Console.ResetColor();
             int i = 0;
             foreach (string element in this.list) {
@@ -376,9 +384,9 @@ namespace DotCommander {
             Console.ForegroundColor = ConsoleColor.Yellow;
             try {
                 /* when writing a string on the console
-                 * can happen that the string is bigger of the box,
+                 * can happen that the string is bigger of the page,
                  * if this happens we cut it otherwise we write all the string */
-                Console.Write("   " + history_dirs.Last<string>().Substring(0, cols_of_the_box - 4));
+                Console.Write("   " + history_dirs.Last<string>().Substring(0, cols_of_the_page - 4));
             } catch (System.ArgumentOutOfRangeException e) {
                 Console.Write("   " + history_dirs.Last<string>());
             }
@@ -391,18 +399,18 @@ namespace DotCommander {
                 if (File.Exists(element)) {
                     if (i == this.index_list && this.focus) {
                         // this record must be highlighted because the cursor is here
-                        DirectoryBox.set_file_color(true);
+                        DirectoryPage.set_file_color(true);
                     } else {
-                        DirectoryBox.set_file_color(false);
+                        DirectoryPage.set_file_color(false);
                     }
                     Console.SetCursorPosition(bottom_right.x - 12, top_left.y + i + 1);
                     Console.Write(File.GetLastWriteTime(element).ToString("d"));
                 } else if (Directory.Exists(element)) {
                     if (i == this.index_list && this.focus) {
                         // this record must be highlighted because the cursor is here
-                        DirectoryBox.set_directory_color(true);
+                        DirectoryPage.set_directory_color(true);
                     } else {
-                        DirectoryBox.set_directory_color(false);
+                        DirectoryPage.set_directory_color(false);
                     }
                     Console.SetCursorPosition(bottom_right.x - 12, top_left.y + i + 1);
                     Console.Write(Directory.GetLastWriteTime(element).ToString("d"));
@@ -416,9 +424,9 @@ namespace DotCommander {
                 }
                 try {
                     /* when writing a string on the console
-                     * can happen that the string is bigger of the box,
+                     * can happen that the string is bigger of the page,
                      * if this happens we cut it otherwise we write all the string */
-                    Console.Write(list[i].Split("\\").Last<string>().Substring(0, cols_of_the_box - 1));
+                    Console.Write(list[i].Split("\\").Last<string>().Substring(0, cols_of_the_page - 1));
                 } catch (System.ArgumentOutOfRangeException e) {
                     Console.Write(list[i].Split("\\").Last<string>());
                 }
@@ -456,9 +464,9 @@ namespace DotCommander {
             }
             try {
                 /* when writing a string on the console
-                 * can happen that the string is bigger of the box,
+                 * can happen that the string is bigger of the page,
                  * if this happens we cut it otherwise we write all the string */
-                Console.Write(list[i_from].Split("\\").Last<string>().Substring(0, cols_of_the_box - 1));
+                Console.Write(list[i_from].Split("\\").Last<string>().Substring(0, cols_of_the_page - 1));
             } catch (System.ArgumentOutOfRangeException e) {
                 Console.Write(list[i_from].Split("\\").Last<string>());
             }
@@ -482,9 +490,9 @@ namespace DotCommander {
             }
             try {
                 /* when writing a string on the console
-                 * can happen that the string is bigger of the box,
+                 * can happen that the string is bigger of the page,
                  * if this happens we cut it otherwise we write all the string */
-                Console.Write(list[i_to].Split("\\").Last<string>().Substring(0, cols_of_the_box - 1));
+                Console.Write(list[i_to].Split("\\").Last<string>().Substring(0, cols_of_the_page - 1));
             } catch (System.ArgumentOutOfRangeException e) {
                 Console.Write(list[i_to].Split("\\").Last<string>());
             }
@@ -506,7 +514,7 @@ namespace DotCommander {
             }
             history_dirs.Add(path);
             index_list = 0;
-            clear_directory_box();
+            clear_directory_page();
             list.Clear();
             foreach (string temp in dirs) {
                 this.list.Add(temp);
@@ -519,7 +527,7 @@ namespace DotCommander {
 
         public void switch_focus() {
             this.focus = !this.focus;
-            clear_directory_box();
+            clear_directory_page();
             draw();
         }
 
