@@ -3,6 +3,12 @@ This is an Open Source console file manager for Windows under MIT license.
 
 It only uses .NET6 framework and there is not any terminal emulator. The project is just a window console program.
 
+
+
+https://user-images.githubusercontent.com/58048638/198825609-3d5b7526-3b24-4159-9554-c595a9e87b01.mp4
+
+
+
 ## Build the project
 1. Download the repostitory.
 2. Open the DotCommander.sln solution with Visual Studio.
